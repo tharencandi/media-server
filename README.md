@@ -4,7 +4,7 @@ Welcome to assignment 03 for ISYS2120.
 
 This is the code base that you must modify for the purposes of the assignment.
 
-Please look at the specification [file](isys2120_21s2_a03_specification.pdf) to see the full details regarding what you need to do for this assessment.
+Please look at the specification [file](isys2120_21s2_a03.pdf) to see the full details regarding what you need to do for this assessment.
 
 You will have to mainly have to modify 2 files: routes.py and database.py
 

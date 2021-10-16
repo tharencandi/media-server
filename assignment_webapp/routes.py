@@ -854,14 +854,50 @@ def add_song():
     # Fill in the Function below with to do all data handling for adding a song #
     #############################################################################
 
-    page['title'] = '' # Add the title
+    page['title'] = 'Adding Song' # Add the title
+    newdict = {}
 
     if request.method == 'POST':
-        # Set up some variables to manage the post returns
+        
+        if ('song_title' not in request.form):
+            newdict['song_title'] = 'Empty Song Value'
+        else:
+            newdict['song_title'] = request.form['song_title']
+        
+        if ('description' not in request.form):
+            newdict['description'] = 'Empty Song Description'
+        else:
+            newdict['description'] = request.form['description']
+            print("We have a value: ",newdict['description'])
+        
+        if ('storage_location' not in request.form):
+            newdict['storage_location'] = 'Empty storage location'
+        else:
+            newdict['storage_location'] = request.form['storage_location']
+            print("We have a value: ",newdict['storage_location'])
+        
+        if ('songlength' not in request.form):
+            newdict['songlength'] = 'Empty storage location'
+        else:
+            newdict['songlength'] = request.form['songlength']
+            print("We have a value: ",newdict['songlength'])
+        
+        if ('genre' not in request.form):
+            newdict['genre'] = 'No genre'
+        else:
+            newdict['genre'] = request.form['genre']
+            print("We have a value: ",newdict['genre'])
+        
+        if ('artistid' not in request.form):
+            newdict['artistid'] = 'drama'
+        else:
+            newdict['artistid'] = request.form['artistid']
+            print("We have a value: ",newdict['artistid'])
+        
+        song_id = database.add_song_to_db(newdict['storage_location'],newdict['description'],newdict['song_title'],newdict['songlength'],newdict['genre'], newdict['artistid'])
 
-        # Once retrieved, do some data integrity checks on the data
-
-        # Once verified, send the appropriate data to the database for insertion
+        print("We have a value: ",newdict['song_title'])
+        
 
         # NOTE :: YOU WILL NEED TO MODIFY THIS TO PASS THE APPROPRIATE VARIABLES
         return render_template('singleitems/song.html',

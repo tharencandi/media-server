@@ -27,6 +27,25 @@
             needed to this page (such as artists, metadata type id's or values) and then manage the display similar to what is
             done in the drop down menu for the search bar
         -->
+        <form class="Add" method="POST" action="{{url_for('add_song')}}">
+
+            Song title: <input type="text" name="song_title" value="Empty Song" placeholder="Song name">
+            Song Length: <input type="text" name="songlength" value="0" placeholder="Song Length">
+            <br/>
+            Storage location: <input type="text" name="storage_location" value="no location" placeholder="Storage location">
+            Description: <input type="text" name="description" value="no description" placeholder="Description">
+            <br/>
+            Song Genre: <input type="text" name="genre" value="no genre" placeholder="no genre">
+            Artist Id: <input type="text" name="artistid" value="no artist" placeholder="no artist">
+            <br/>
+            <button class="flat" type="submit">Add</button>
+            <br/>
+            <hr/>
+            <hr/>
+            <hr/>
+            
+
+        </form>
  
         <br/>
         <div>

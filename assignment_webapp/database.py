@@ -673,7 +673,7 @@ def get_song_metadata(song_id):
         WHERE media _id = %s;
         """
 
-        r = dictfetchall(cur,sql,(song_id,))
+        r = dictfetchall(cur,sql,(song_id))
         print("return val is:")
         print(r)
         cur.close()                     # Close the cursor
@@ -681,7 +681,7 @@ def get_song_metadata(song_id):
         return r
     except:
         # If there were any errors, return a NULL row printing an error to the debug
-        print("Unexpected error getting song metadata for ID: "+song_id, sys.exc_info()[0])
+        print("Unexpected error getting song metadata for ID: "+str(song_id), sys.exc_info()[0])
         raise
     cur.close()                     # Close the cursor
     conn.close()                    # Close the connection to the db
@@ -1345,7 +1345,7 @@ def add_song_to_db(storage_location,description,title,songlength,genre, artistid
         sql = """
         SELECT 
             mediaserver.addSong(
-                %s,%s,%s,%s,%s, %s);
+                %s,%s,%s,%s,%s,%s);
         """
 
         cur.execute(sql,(storage_location,description,title,songlength,genre, artistid))
@@ -1400,6 +1400,33 @@ def get_last_movie():
     conn.close()                    # Close the connection to the db
     return None
 
+def get_last_song():
+    """
+    Get all the latest entered movie in your media server
+    """
+
+    conn = database_connect()
+    if(conn is None):
+        return None
+    cur = conn.cursor()
+    try:
+        # Try executing the SQL and get from the database
+        sql = """
+        select max(song_id) as song_id from mediaserver.song"""
+
+        r = dictfetchone(cur,sql)
+        print("return val is:")
+        print(r)
+        cur.close()                     # Close the cursor
+        conn.close()                    # Close the connection to the db
+        return r
+    except:
+        # If there were any errors, return a NULL row printing an error to the debug
+        print("Unexpected error adding a song:", sys.exc_info()[0])
+        raise
+    cur.close()                     # Close the cursor
+    conn.close()                    # Close the connection to the db
+    return None
 
 #  FOR MARKING PURPOSES ONLY
 #  DO NOT CHANGE

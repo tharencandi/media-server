@@ -308,7 +308,7 @@ create or replace function mediaserver.addSong(
     artistid int)
 RETURNS int AS
 $BODY$
-    --INSERT INTO Song(storage_location) ;
+    
     WITH ins1 AS (
         INSERT INTO mediaserver.mediaItem(storage_location)
         VALUES (location)
@@ -324,17 +324,17 @@ $BODY$
         INSERT INTO mediaserver.AudioMedia
         SELECT media_id FROM ins1
         )
-        ,ins4 AS (
+        , ins4 AS (
         INSERT INTO mediaserver.Song
         SELECT media_id, title, songlength FROM ins1
         )
-        ,ins5 AS (
+        , ins5 AS (
         INSERT INTO mediaserver.metadata (md_type_id,md_value)
         SELECT md_type_id, songgenre
         FROM mediaserver.MetaDataType where md_type_name = 'song genre'
         RETURNING md_id as genre_md_id
         )
-        ,ins6 AS (
+        , ins6 AS (
         INSERT INTO mediaserver.MediaItemMetaData
         SELECT media_id, genre_md_id FROM ins1, ins5
         )
@@ -343,7 +343,7 @@ $BODY$
         SELECT media_id, md_id FROM ins1, ins2
         )
         INSERT INTO mediaserver.Song_Artists
-        SELECT media_id, artistid FROM ins1, ins2;
+        SELECT media_id, artistid FROM ins1;
         
         SELECT max(song_id) as song_id FROM mediaserver.song;
 $BODY$

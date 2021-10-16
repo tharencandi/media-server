@@ -755,9 +755,10 @@ def get_all_podcasteps_for_podcast(podcast_id):
         # podcast episodes in a podcast                                             #
         #############################################################################
         
-        sql = """
+        sql = """select podcast_id, podcast_episode_title, podcast_episode_URI, 
+        podcast_episode_published_date, podcast_episode_length
+        FROM PodcastEpisode;  
         """
-
         r = dictfetchall(cur,sql,(podcast_id,))
         print("return val is:")
         print(r)

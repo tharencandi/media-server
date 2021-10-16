@@ -868,42 +868,52 @@ def add_song():
             newdict['description'] = 'Empty Song Description'
         else:
             newdict['description'] = request.form['description']
-            print("We have a value: ",newdict['description'])
+            print("We have a description value: ",newdict['description'])
         
         if ('storage_location' not in request.form):
             newdict['storage_location'] = 'Empty storage location'
         else:
             newdict['storage_location'] = request.form['storage_location']
-            print("We have a value: ",newdict['storage_location'])
+            print("We have a storage value: ",newdict['storage_location'])
         
         if ('songlength' not in request.form):
             newdict['songlength'] = 'Empty storage location'
         else:
             newdict['songlength'] = request.form['songlength']
-            print("We have a value: ",newdict['songlength'])
+            print("We have a songlength value: ",newdict['songlength'])
         
         if ('genre' not in request.form):
             newdict['genre'] = 'No genre'
         else:
             newdict['genre'] = request.form['genre']
-            print("We have a value: ",newdict['genre'])
+            print("We have a genre value: ",newdict['genre'])
         
         if ('artistid' not in request.form):
-            newdict['artistid'] = 'drama'
+            newdict['artistid'] = 'pop'
         else:
             newdict['artistid'] = request.form['artistid']
-            print("We have a value: ",newdict['artistid'])
+            print("We have a artist value: ",newdict['artistid'])
+        
+        print('newdict is:')
+        print(newdict)
         
         song_id = database.add_song_to_db(newdict['storage_location'],newdict['description'],newdict['song_title'],newdict['songlength'],newdict['genre'], newdict['artistid'])
 
         print("We have a value: ",newdict['song_title'])
         
+        
 
         # NOTE :: YOU WILL NEED TO MODIFY THIS TO PASS THE APPROPRIATE VARIABLES
-        return render_template('singleitems/song.html',
-                           session=session,
-                           page=page,
-                           user=user_details)
+        # return render_template('singleitems/song.html',
+        #                    session=session,
+        #                    page=page,
+        #                    user=user_details)
+        max_song_id = database.get_last_song()[0]['song_id']
+        print(max_song_id)
+        if song_id is not None:
+            max_song_id = song_id[0]
+        
+        return single_song(max_song_id)
     else:
         return render_template('createitems/createsong.html',
                            session=session,

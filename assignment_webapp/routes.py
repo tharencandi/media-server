@@ -420,16 +420,30 @@ def single_podcast(podcast_id):
     # Fill in the Function below with to do all data handling for a podcast     #
     #############################################################################
 
-    page['title'] = '' # Add the title
+    page['title'] = 'Podcast' # Add the title
 
+        # Get a list of all song by song_id from the database
+    podcast = None
+    podcast = database.get_podcast(podcast_id)
+
+    podcast_episodes = None
+    podcast_episodes = database.get_all_podcasteps_for_podcast(podcast_id)
+
+    # Data integrity checks
+    if podcast == None:
+        podcast = []
+
+    if podcast_episodes == None:
+        podcast_episodes = []
     # Set up some variables to manage the returns from the database fucntions
     
     # Once retrieved, do some data integrity checks on the data
 
-    # NOTE :: YOU WILL NEED TO MODIFY THIS TO PASS THE APPROPRIATE VARIABLES
     return render_template('singleitems/podcast.html',
                            session=session,
                            page=page,
+                           podcast=podcast,
+                           podcast_episodes=podcast_episodes,
                            user=user_details)
 
 #####################################################

@@ -153,14 +153,12 @@ def check_login(username, password):
         # Fill in the SQL below in a manner similar to Wk 08 Lab to log the user in #
         #############################################################################
 
-        sql = """
-        
+        sql = """SELECT * FROM mediaserver.UserAccount WHERE username = %s AND password = %s;
         
         """
-        print(username)
-        print(password)
 
         r = dictfetchone(cur,sql,(username,password))
+        
         print(r)
         cur.close()                     # Close the cursor
         conn.close()                    # Close the connection to the db
@@ -232,7 +230,9 @@ def user_playlists(username):
         ###############################################################################
         # Fill in the SQL below and make sure you get all the playlists for this user #
         ###############################################################################
-        sql = """
+        sql = """ SELECT collection_name 
+            FROM mediaserver.MediaCollection 
+            WHERE username = %s;
         
         """
 
@@ -274,11 +274,13 @@ def user_podcast_subscriptions(username):
         # Fill in the SQL below and get all the podcasts that the user is subscribed to #
         #################################################################################
 
-        sql = """
+        sql = """ SELECT podcast_episode_title 
+            FROM mediaserver.PodcastEpisode PE NATURAL JOIN mediaserver.Subscribed_Podcasts SA
+            WHERE SA.username = %s;
         """
 
 
-        r = dictfetchall(cur,sql,(username,))
+        r = dictfetchall(cur,sql,(username,)) #returns dictionay (key, value)????
         print("return val is:")
         cur.close()                     # Close the cursor
         conn.close()                    # Close the connection to the db
@@ -313,7 +315,9 @@ def user_in_progress_items(username):
         # Fill in the SQL below with a way to find all the in progress items for the user #
         ###################################################################################
 
-        sql = """
+        sql = """SELECT media_id 
+            FROM mediaserver.UserMediaConsumption 
+            WHERE username = %s AND progress != 100.00;
 
         """
 
@@ -623,7 +627,9 @@ def get_song(song_id):
         # Fill in the SQL below with a query to get all information about a song    #
         # and the artists that performed it                                         #
         #############################################################################
-        sql = """
+        sql = """ SELECT S.song_title, A.artist_name, S.length
+        FROM (mediaserver.Song_Artists SA NATURAL JOIN mediaserver.Song S) NATURAL JOIN mediaserver.Artist A
+        WHERE song_id = %s;
         """
 
         r = dictfetchall(cur,sql,(song_id,))
@@ -662,7 +668,9 @@ def get_song_metadata(song_id):
         # Fill in the SQL below with a query to get all metadata about a song       #
         #############################################################################
 
-        sql = """
+        sql = """SELECT md_value, md_type_id
+        FROM ((MediaItemMetaData JOIN MediaItem USING (media_id)) JOIN MetaData MD USING (md_id)) JOIN MetaDataType MDT USING (md_type_id)
+        WHERE media _id = %s;
         """
 
         r = dictfetchall(cur,sql,(song_id,))

@@ -797,7 +797,11 @@ def get_podcastep(podcastep_id):
         # podcast episodes and it's associated metadata                             #
         #############################################################################
         sql = """
-        """
+        SELECT * 
+        FROM mediaserver.PodcastEpisode pe LEFT OUTER JOIN 
+            (mediaserver.mediaitemmetadata NATURAL JOIN mediaserver.metadata NATURAL JOIN mediaserver.MetaDataType) pemd
+            ON (pe.media_id=pemd.media_id)
+        WHERE pe.media_id = %s"""
 
         r = dictfetchall(cur,sql,(podcastep_id,))
         print("return val is:")

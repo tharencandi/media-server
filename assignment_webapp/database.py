@@ -1288,13 +1288,13 @@ def find_matchingmovies(searchterm):
         #########
         # TODO  #  
         #########
-
+       
         #############################################################################
         # Fill in the SQL below with a query to get all information about movies    #
         # that match a given search term                                            #
         #############################################################################
         sql = """
-        SELECT movie_id, movie_title, release_year FROM mediaserver.Movie WHERE movie_title = %s";
+        SELECT movie_id, movie_title, release_year FROM mediaserver.Movie WHERE movie_title =%s;
 
         """
 

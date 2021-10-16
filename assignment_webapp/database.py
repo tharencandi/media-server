@@ -711,7 +711,11 @@ def get_podcast(podcast_id):
         # Fill in the SQL below with a query to get all information about a podcast #
         # including all metadata associated with it                                 #
         #############################################################################
-        sql = """
+        sql = """select podcast_id, podcast_title, podcast_uri, podcast_last_updated
+        FROM from mediaserver.podcast a left outer join 
+            (mediaserver.podcastmetadata natural join mediaserver.metadata natural join mediaserver.MetaDataType) amd
+        on (a.podcast_id=amd.podcast_id)
+        where a.podcast_id=%s;
         """
 
         r = dictfetchall(cur,sql,(podcast_id,))
@@ -751,9 +755,10 @@ def get_all_podcasteps_for_podcast(podcast_id):
         # podcast episodes in a podcast                                             #
         #############################################################################
         
-        sql = """
+        sql = """select podcast_id, podcast_episode_title, podcast_episode_URI, 
+        podcast_episode_published_date, podcast_episode_length
+        FROM PodcastEpisode;  
         """
-
         r = dictfetchall(cur,sql,(podcast_id,))
         print("return val is:")
         print(r)
@@ -1110,7 +1115,7 @@ def get_tvshow(tvshow_id):
     return None
 
 
-#####################################################
+########################################### ##########
 #   Query (4 c)
 #   Get all tv show episodes for one tv show
 #####################################################

@@ -668,12 +668,12 @@ def get_song_metadata(song_id):
         # Fill in the SQL below with a query to get all metadata about a song       #
         #############################################################################
 
-        sql = """SELECT md_value, md_type_id
-        FROM ((mediaserver.MediaItemMetaData JOIN mediaserver.MediaItem USING (media_id)) JOIN mediaserver.MetaData MD USING (md_id)) JOIN mediaserver.MetaDataType MDT USING (md_type_id)
-        WHERE media _id = %s;
+        sql = """SELECT  md_type_name, md_value
+            FROM (mediaserver.MetaData MD JOIN mediaserver.MetaDataType MDT USING (md_type_id)) JOIN mediaserver.MediaItemMetaData USING (md_id)
+            WHERE media_id = %s;
         """
 
-        r = dictfetchall(cur,sql,(song_id))
+        r = dictfetchall(cur,sql,(song_id,))
         print("return val is:")
         print(r)
         cur.close()                     # Close the cursor

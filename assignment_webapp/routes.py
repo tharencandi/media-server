@@ -896,8 +896,8 @@ def add_song():
         #                    user=user_details)
         max_song_id = database.get_last_song()[0]['song_id']
         print(max_song_id)
-        if song_id is not None:
-            max_song_id = song_id[0]
+        # if song_id is not None:
+        #     max_song_id = song_id[0]
         
         return single_song(max_song_id)
     else:

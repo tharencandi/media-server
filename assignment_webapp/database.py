@@ -516,7 +516,9 @@ def get_alltvshows():
         #############################################################################
         # Fill in the SQL below with a query to get all tv shows and episode counts #
         #############################################################################
-        sql = """
+        sql = """SELECT tvshow_id, tvshow_title, COUNT((media_id,tvshow_id,season,episode)) 
+                    FROM TVShow JOIN TVEpisode USING (tvshow_id)
+                    GROUP BY tvshow_id, tvshow_title;
         """
 
         r = dictfetchall(cur,sql)
@@ -709,7 +711,11 @@ def get_podcast(podcast_id):
         # Fill in the SQL below with a query to get all information about a podcast #
         # including all metadata associated with it                                 #
         #############################################################################
-        sql = """
+        sql = """select podcast_id, podcast_title, podcast_uri, podcast_last_updated
+        FROM from mediaserver.podcast a left outer join 
+            (mediaserver.podcastmetadata natural join mediaserver.metadata natural join mediaserver.MetaDataType) amd
+        on (a.podcast_id=amd.podcast_id)
+        where a.podcast_id=%s;
         """
 
         r = dictfetchall(cur,sql,(podcast_id,))
@@ -749,9 +755,10 @@ def get_all_podcasteps_for_podcast(podcast_id):
         # podcast episodes in a podcast                                             #
         #############################################################################
         
-        sql = """
+        sql = """select podcast_id, podcast_episode_title, podcast_episode_URI, 
+        podcast_episode_published_date, podcast_episode_length
+        FROM PodcastEpisode;  
         """
-
         r = dictfetchall(cur,sql,(podcast_id,))
         print("return val is:")
         print(r)
@@ -790,7 +797,11 @@ def get_podcastep(podcastep_id):
         # podcast episodes and it's associated metadata                             #
         #############################################################################
         sql = """
-        """
+        SELECT * 
+        FROM mediaserver.PodcastEpisode pe LEFT OUTER JOIN 
+            (mediaserver.mediaitemmetadata NATURAL JOIN mediaserver.metadata NATURAL JOIN mediaserver.MetaDataType) pemd
+            ON (pe.media_id=pemd.media_id)
+        WHERE pe.media_id = %s"""
 
         r = dictfetchall(cur,sql,(podcastep_id,))
         print("return val is:")
@@ -830,6 +841,11 @@ def get_album(album_id):
         # including all relevant metadata                                           #
         #############################################################################
         sql = """
+        SELECT *
+        FROM mediaserver.Album a LEFT OUTER JOIN 
+            (mediaserver.AlbumMetaData NATURAL JOIN mediaserver.MetaData NATURAL JOIN mediaserver.MetaDataType) amd
+        ON (a.album_id=amd.album_id)
+        WHERE a.album_id=%s
         """
 
         r = dictfetchall(cur,sql,(album_id,))
@@ -870,6 +886,7 @@ def get_album_songs(album_id):
         # songs in an album, including their artists                                #
         #############################################################################
         sql = """
+        
         """
 
         r = dictfetchall(cur,sql,(album_id,))
@@ -910,6 +927,13 @@ def get_album_genres(album_id):
         # genres in an album (based on all the genres of the songs in that album)   #
         #############################################################################
         sql = """
+        SELECT DISTINCT a.album_id, md.md_value AS genre
+        FROM mediaserver.Album a JOIN mediaserver.Album_Songs as USING (album_id)
+                JOIN mediaserver.AudioMedia am ON (as.song_id=am.media_id)
+                JOIN mediaserver.MediaItemMetaData mimd ON (am.media_id=mimd.md_id)
+                JOIN mediaserver.MetaData md ON (mimd.md_id=md.md_id)
+                JOIN mediaserver.MetaDataType mdt ON (md.md_type_id=mdt.md_type_id)
+        WHERE mdt.md_type_name='song genre' AND a.album_id=%s
         """
 
         r = dictfetchall(cur,sql,(album_id,))
@@ -1100,7 +1124,11 @@ def get_tvshow(tvshow_id):
         # Fill in the SQL below with a query to get all information about a tv show #
         # including all relevant metadata       #
         #############################################################################
-        sql = """
+        sql = """select *
+        from mediaserver.tvshow TVS left outer join 
+            (mediaserver.tvshowmetadata natural join mediaserver.metadata natural join mediaserver.MetaDataType) MD
+        on (TVS.tvshow_id=MD.tvshow_id)
+        where TVS.tvshow_id=%s
         """
 
         r = dictfetchall(cur,sql,(tvshow_id,))
@@ -1118,7 +1146,7 @@ def get_tvshow(tvshow_id):
     return None
 
 
-#####################################################
+########################################### ##########
 #   Query (4 c)
 #   Get all tv show episodes for one tv show
 #####################################################
@@ -1140,7 +1168,9 @@ def get_all_tvshoweps_for_tvshow(tvshow_id):
         # Fill in the SQL below with a query to get all information about all       #
         # tv episodes in a tv show                                                  #
         #############################################################################
-        sql = """
+        sql = """select media_id, tvshow_episode_title, season, episode, air_date
+        FROM TVShow join TVEpisode using (tvshow_id)
+        WHERE tvshow_id=%s;
         """
 
         r = dictfetchall(cur,sql,(tvshow_id,))

@@ -1056,10 +1056,37 @@ def get_genre_movies_and_shows(genre_id):
         # Fill in the SQL below with a query to get all information about all       #
         # movies and tv shows which belong to a particular genre_id                 #
         #############################################################################
-        sql = """
-        """
 
-        r = dictfetchall(cur,sql,(genre_id,))
+        #md_type_name = "film genre
+        # 
+        # mayve left outer join"
+        sql = """
+        
+        SELECT movie_title as title, movie_id as media_id
+            FROM mediaserver.Movies INNER JOIN (mediaserver.Video_media INNER JOIN mediaserver.MediaItemMetaData USING(media_id)) USING (movie_id = media_id)
+            WHERE md_id IN 
+                (
+                    SELECT md_id 
+                        FROM mediaserver.MetaData INNER JOIN mediaserver.MetaDatType USING (md_type_id) 
+                        WHERE md_type_name = 'film genre' AND md_value = %s     
+                )
+
+        UNION 
+        
+        SELECT movie_title as title, movie_id as media_id
+        FROM mediaserver.Movies INNER JOIN (mediaserver.Video_media INNER JOIN mediaserver.MediaItemMetaData USING(media_id)) USING (movie_id = media_id)
+        WHERE md_id IN 
+            (
+                SELECT md_id 
+                    FROM mediaserver.MetaData INNER JOIN mediaserver.MetaDatType USING (md_type_id) 
+                    WHERE md_type_name = 'film genre' AND md_value = %s     
+            )
+
+        
+
+        """
+    #THIS WAS CHANGED TO two insyead of one 
+        r = dictfetchall(cur,sql,(genre_id, genre_id))
         print("return val is:")
         print(r)
         cur.close()                     # Close the cursor

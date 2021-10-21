@@ -1035,6 +1035,29 @@ def get_genre_podcasts(genre_id):
     conn.close()                    # Close the connection to the db
     return None
 
+def get_genre_name(genre_id):
+    conn = database_connect()
+    if(conn is None):
+        return None
+    cur = conn.cursor()
+    try:
+
+        sql = "SELECT md_value as genre_name FROM mediaserver.metadata WHERE md_id = %s"
+        r = dictfetchall(cur,sql,(genre_id))
+        print("return val is:")
+        print(r)
+        cur.close()                     # Close the cursor
+        conn.close()                    # Close the connection to the db
+        return r
+    except:
+        # If there were any errors, return a NULL row printing an error to the debug
+        print("Unexpected error getting Movies and tv shows with Genre ID: "+genre_id, sys.exc_info()[0])
+        raise
+    cur.close()                     # Close the cursor
+    conn.close()                    # Close the connection to the db
+    return None
+
+
 #####################################################
 #   Query (10)
 #   Get all movies and tv shows for one film_genre
@@ -1048,43 +1071,26 @@ def get_genre_movies_and_shows(genre_id):
         return None
     cur = conn.cursor()
     try:
-        #########
-        # TODO  #  
-        #########
+       
 
         #############################################################################
         # Fill in the SQL below with a query to get all information about all       #
         # movies and tv shows which belong to a particular genre_id                 #
         #############################################################################
 
-        #md_type_name = "film genre
-        # 
-        # mayve left outer join"
+       
         sql = """
-        
-        SELECT movie_title as title, movie_id as media_id
-            FROM mediaserver.Movies INNER JOIN (mediaserver.Video_media INNER JOIN mediaserver.MediaItemMetaData USING(media_id)) USING (movie_id = media_id)
-            WHERE md_id IN 
-                (
-                    SELECT md_id 
-                        FROM mediaserver.MetaData INNER JOIN mediaserver.MetaDatType USING (md_type_id) 
-                        WHERE md_type_name = 'film genre' AND md_value = %s     
-                )
-
+        SELECT movie_title as title, movie_id as media_id, 'movie' as film_type
+            FROM mediaserver.movie JOIN mediaserver.MediaItemMetaData ON (movie_id = media_id) 
+        WHERE md_id = %s 
         UNION 
+        SELECT tvshow_title as title, tvshow_id as media_id, 'show' as film_type
+        FROM mediaserver.tvshow JOIN mediaserver.MediaItemMetaData ON (tvshow_id = media_id) 
+        WHERE md_id = %s  
         
-        SELECT movie_title as title, movie_id as media_id
-        FROM mediaserver.Movies INNER JOIN (mediaserver.Video_media INNER JOIN mediaserver.MediaItemMetaData USING(media_id)) USING (movie_id = media_id)
-        WHERE md_id IN 
-            (
-                SELECT md_id 
-                    FROM mediaserver.MetaData INNER JOIN mediaserver.MetaDatType USING (md_type_id) 
-                    WHERE md_type_name = 'film genre' AND md_value = %s     
-            )
-
-        
-
         """
+
+        
     #THIS WAS CHANGED TO two insyead of one 
         r = dictfetchall(cur,sql,(genre_id, genre_id))
         print("return val is:")

@@ -632,8 +632,8 @@ def single_tvshowep(tvshowep_id):
 #   Query (10)
 #   Individual Genre
 #####################################################
-@app.route('/genre/<genre_id>')
-def single_genre(genre_id):
+@app.route('/genre/<genre_type>/<genre_id>')
+def single_genre(genre_id, genre_type):
     """
     Show a single genre in your media server
     First, figure out what type of genre this is
@@ -646,19 +646,19 @@ def single_genre(genre_id):
         a. list all podcasts
     Can do this without a login
     """
-    # # Check if the user is logged in, if not: back to login.
-    # if('logged_in' not in session or not session['logged_in']):
-    #     return redirect(url_for('login'))
+  
 
-    #########
-    # TODO  #  
-    #########
+    genre_name = database.get_genre_name(genre_id)
+    media = None
+    if genre_type == "film genre":
+        media = database.get_genre_movies_and_shows(genre_id)
+     
 
     #############################################################################
     # Fill in the Function below with to do all data handling for a genre       #
     #############################################################################
 
-    page['title'] = '' # Add the title
+    
 
     # Identify the type of genre - you may need to add a new function to database.py to do this
 
@@ -670,7 +670,9 @@ def single_genre(genre_id):
     # NOTE :: YOU WILL NEED TO MODIFY THIS TO PASS THE APPROPRIATE VARIABLES
     return render_template('singleitems/genre.html',
                            session=session,
-                           page=page,
+                           genre_name=genre_name,
+                           genre_type=genre_type,
+                           media=media,
                            user=user_details)
 
 

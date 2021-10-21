@@ -980,7 +980,10 @@ def get_genre_songs(genre_id):
         # Fill in the SQL below with a query to get all information about all       #
         # songs which belong to a particular genre_id                               #
         #############################################################################
-        sql = """
+        sql = """ SELECT song_title as title, song_id as media_id
+            FROM ((mediaserver.song JOIN mediaserver.MediaItemMetaData ON (song_id = media_id)) 
+            JOIN mediaserver.MetaData Md USING (md_id)) JOIN mediaserver.MetaDataType USING (md_type_id)
+        WHERE md_type_name = 'song genre'  AND md_id =%s;
         """
 
         r = dictfetchall(cur,sql,(genre_id,))
@@ -1018,7 +1021,9 @@ def get_genre_podcasts(genre_id):
         # Fill in the SQL below with a query to get all information about all       #
         # podcasts which belong to a particular genre_id                            #
         #############################################################################
-        sql = """
+        sql = """SELECT podcast_title as title, podcast_id as media_id
+            FROM ((mediaserver.podcast JOIN mediaserver.MediaItemMetaData ON (podcast_id = media_id)) JOIN mediaserver.MetaData Md USING (md_id)) JOIN mediaserver.MetaDataType USING (md_type_id)
+        WHERE md_type_name = 'podcast genre'  AND md_id = %s;
         """
 
         r = dictfetchall(cur,sql,(genre_id,))

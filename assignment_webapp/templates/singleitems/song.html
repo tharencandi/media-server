@@ -35,6 +35,11 @@
                     </div>
                 {% endif %}
             {% endfor %}
+            <h3> Audio </h3>
+            <audio controls>
+                <source src="{{songLink[0].storage_location}}" type="audio/mp3">
+              Your browser does not support the audio element.
+              </audio>
         {% else %}
             <h2 class="title"> Invalid Song ID</h2>
         {% endif %}

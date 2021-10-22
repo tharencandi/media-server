@@ -390,6 +390,9 @@ def single_song(song_id):
     songmetadata = None
     songmetadata = database.get_song_metadata(song_id)
 
+    songLink = None 
+    songLink = database.get_mediaLink(song_id)
+
     # Data integrity checks
     if song == None:
         song = []
@@ -402,7 +405,8 @@ def single_song(song_id):
                            page=page,
                            user=user_details,
                            song=song,
-                           songmetadata=songmetadata)
+                           songmetadata=songmetadata,
+                           songLink = songLink)
 
 #####################################################
 #   Query (6)
@@ -652,7 +656,12 @@ def single_genre(genre_id, genre_type):
     media = None
     if genre_type == "film genre":
         media = database.get_genre_movies_and_shows(genre_id)
-     
+    
+    if genre_type == "song genre":
+        media = database.get_genre_songs(genre_id)
+    
+    if genre_type == "podcast genre":
+        media = database.get_genre_podcasts(genre_id)
 
     #############################################################################
     # Fill in the Function below with to do all data handling for a genre       #

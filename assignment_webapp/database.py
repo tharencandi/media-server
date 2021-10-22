@@ -692,7 +692,7 @@ def get_song_metadata(song_id):
         # Fill in the SQL below with a query to get all metadata about a song       #
         #############################################################################
 
-        sql = """SELECT  md_type_name, md_value
+        sql = """SELECT md_id, md_type_name, md_value
             FROM (mediaserver.MetaData MD JOIN mediaserver.MetaDataType MDT USING (md_type_id)) JOIN mediaserver.MediaItemMetaData USING (md_id)
             WHERE media_id = %s;
         """
@@ -1093,7 +1093,7 @@ def get_genre_name(genre_id):
     try:
 
         sql = "SELECT md_value as genre_name FROM mediaserver.metadata WHERE md_id = %s"
-        r = dictfetchall(cur,sql,(genre_id))
+        r = dictfetchall(cur,sql,(genre_id,))
         print("return val is:")
         print(r)
         cur.close()                     # Close the cursor

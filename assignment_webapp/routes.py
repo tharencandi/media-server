@@ -80,6 +80,22 @@ def index():
 #   LOGIN
 #####################################################
 
+@app.route('/update_progress', methods = ['POST'])
+def update_progress():
+    #we need media id and current time from the html page
+    print(request.form)
+    username = user_details['username']
+
+    media_id = None 
+    
+    #we need to extract song duraction from here to calc progress
+    meta = database.get_song_metadata(media_id)
+
+    #call  update progress database method
+    
+
+
+
 @app.route('/login', methods=['POST', 'GET'])
 def login():
     """
@@ -658,12 +674,14 @@ def single_genre(genre_id, genre_type):
     media = None
     if genre_type == "film genre":
         media = database.get_genre_movies_and_shows(genre_id)
+
     
     if genre_type == "song genre":
         media = database.get_genre_songs(genre_id)
     
     if genre_type == "podcast genre":
         media = database.get_genre_podcasts(genre_id)
+
 
     #############################################################################
     # Fill in the Function below with to do all data handling for a genre       #

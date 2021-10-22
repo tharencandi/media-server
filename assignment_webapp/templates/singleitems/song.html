@@ -30,9 +30,9 @@
             <h3> Genres </h3>
             {% for instance in songmetadata %}
                 {% if instance.md_type_name == 'song genre' %}
-                    <div>
-                        {{instance.md_value}}
-                    </div>
+                    <a href="{{url_for('single_genre', genre_id=instance.md_id, genre_type=instance.md_type_name)}}">
+                    <td>{{instance.md_value}}</td>
+                    <br/>
                 {% endif %}
             {% endfor %}
             <h3> Audio </h3>

@@ -23,18 +23,37 @@
                     {% for instance in media %}
                         
                     
-                        {% if instance.film_type == 'movie'%} 
+                        {% if instance.film_type == 'movie' %} 
                             <tr class="clickable-tr" data-href="{{ url_for('single_movie', movie_id=instance.media_id)}}">
                                 <td style="text-align: center">{{ instance.media_id }}</td>
                                 <td>{{instance.title}}</td>
                             </tr>
                         {% endif %}
-                        {% if instance.film_type == 'show'%} 
+                        {% if instance.film_type == 'show' %} 
                             <tr class="clickable-tr" data-href="{{ url_for('single_tvshow', tvshow_id=instance.media_id)}}">
                                 <td style="text-align: center">{{ instance.media_id }}</td>
                                 <td>{{instance.title}}</td>
                             </tr>
                         {% endif %}
+                    {% endfor %}
+                {% endif %}
+
+
+                {% if genre_type == 'song genre' %}
+                    {% for instance in media %}
+                        <tr class="clickable-tr" data-href="{{ url_for('single_song', song_id=instance.media_id)}}">
+                            <td style="text-align: center">{{ instance.media_id }}</td>
+                            <td>{{instance.title}}</td>
+                        </tr>
+                    {% endfor %}
+                {% endif %}
+
+                {% if genre_type == 'podcast genre' %}
+                    {% for instance in media %}
+                        <tr class="clickable-tr" data-href="{{ url_for('single_podcast', podcast_id=instance.media_id)}}">
+                            <td style="text-align: center">{{ instance.media_id }}</td>
+                            <td>{{instance.title}}</td>
+                        </tr>
                     {% endfor %}
                 {% endif %}
             </tbody>

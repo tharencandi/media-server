@@ -689,6 +689,29 @@ def get_song_metadata(song_id):
     conn.close()                    # Close the connection to the db
     return None
 
+def get_mediaLink(media_id):
+    conn = database_connect()
+    if(conn is None):
+        return None
+    cur = conn.cursor()
+    try:
+        sql = """ SELECT storage_location FROM mediaserver.MediaItem WHERE media_id = %s;
+        """
+        r = dictfetchall(cur,sql,(media_id,))
+        print("return val is:")
+        print(r)
+        cur.close()                     # Close the cursor
+        conn.close()                    # Close the connection to the db
+        return r
+    except:
+        # If there were any errors, return a NULL row printing an error to the debug
+        print("Unexpected error getting song metadata for ID: "+str(media_id), sys.exc_info()[0])
+        raise
+    cur.close()                     # Close the cursor
+    conn.close()                    # Close the connection to the db
+    return None
+
+
 #####################################################
 #   Query (6 a,b,c,d,e)
 #   Get one podcast and return all metadata associated with it

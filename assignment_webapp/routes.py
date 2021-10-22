@@ -80,6 +80,22 @@ def index():
 #   LOGIN
 #####################################################
 
+@app.route('/update_progress', methods = ['POST'])
+def update_progress():
+    #we need media id and current time from the html page
+    print(request.form)
+    username = user_details['username']
+
+    media_id = None 
+    
+    #we need to extract song duraction from here to calc progress
+    meta = database.get_song_metadata(media_id)
+
+    #call  update progress database method
+    
+
+
+
 @app.route('/login', methods=['POST', 'GET'])
 def login():
     """

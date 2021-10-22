@@ -315,7 +315,7 @@ def user_in_progress_items(username):
         # Fill in the SQL below with a way to find all the in progress items for the user #
         ###################################################################################
 
-        sql = """SELECT media_id 
+        sql = """SELECT * 
             FROM mediaserver.UserMediaConsumption 
             WHERE username = %s AND progress != 100.00;
 
@@ -606,7 +606,29 @@ def get_artist(artist_id):
     conn.close()                    # Close the connection to the db
     return None
 
-
+def update_progress(username, media_id, progress):
+    conn = database_connect()
+    if(conn is None):
+        return None
+    cur = conn.cursor()
+    try:
+        sql = """ UPDATE UserMediaConsumption 
+            SET progress = %s
+            WHERE username = %s AND media_id = %s;
+        """
+        r = dictfetchall(cur,sql,(progress, username, media_id))
+        print("return val is:")
+        print(r)
+        cur.close()                     # Close the cursor
+        conn.close()                    # Close the connection to the db
+        return r
+    except:
+        # If there were any errors, return a NULL row printing an error to the debug
+        print("Unexpected error updating the progress:", sys.exc_info()[0])
+        raise
+    cur.close()                     # Close the cursor
+    conn.close()                    # Close the connection to the db
+    return None
 #####################################################
 #   Query (2 a,b,c)
 #   Get one song

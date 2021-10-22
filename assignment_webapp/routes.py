@@ -80,16 +80,18 @@ def index():
 #   LOGIN
 #####################################################
 
-@app.route('/update_progress', methods = ['POST'])
-def update_progress():
+@app.route('/update_progress/<song_id>/<progress>', methods = ['POST'])
+def update_progress(song_id, progress):
+
     #we need media id and current time from the html page
-    print(request.form)
+    print('this method is getting usedddd')
     username = user_details['username']
 
     media_id = None 
     
     #we need to extract song duraction from here to calc progress
-    meta = database.get_song_metadata(media_id)
+    meta = database.get_song_metadata(song_id)
+    check = database.update_progress(username, song_id, progress)
 
     #call  update progress database method
     

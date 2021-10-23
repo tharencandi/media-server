@@ -80,22 +80,27 @@ def index():
 #   LOGIN
 #####################################################
 
-@app.route('/update_progress/<song_id>', methods = ['POST'])
-def update_progress(song_id):
+@app.route('/update_progress/<media_id>', methods = ['POST'])
+def update_progress(media_id):
 
-    #we need media id and current time from the html page
-    print(request.get_json())
-    stuff = request.get_json()
-    print(stuff['progress'])
-    print('this method is getting usedddd')
-    # username = user_details['username']
-
-    media_id = None 
+    current_playback_time = float(request.get_data())
     
-    #we need to extract song duraction from here to calc progress
-    # meta = database.get_song_metadata(song_id)
-    # check = database.update_progress(username, song_id, progress)
+    #we need media id and current time from the html page
+   # print(request.get_json())
+    #stuff = request.get_json()
+    #print(stuff['progress'])
 
+    username = user_details['username']
+
+    #media_id = None 
+
+    #we need to extract song duraction from here to calc progress
+    #meta = database.get_song_metadata(media_id)
+
+    if username:
+        check = database.update_progress(username, media_id, current_playback_time)
+    print("setting progress to {} on {}".format(current_playback_time, media_id))
+    return ""
     #call  update progress database method
     
 
@@ -414,10 +419,14 @@ def single_song(song_id):
     songLink = None 
     songLink = database.get_mediaLink(song_id)
 
+    song_positon = "None"
+    if 'username' in user_details:
+        song_positon = database.get_media_playback_position(user_details['username'],song_id)
+
     # Data integrity checks
     if song == None:
         song = []
-
+    
     if songmetadata == None:
         songmetadata = []
     if songLink == None:
@@ -429,7 +438,8 @@ def single_song(song_id):
                            user=user_details,
                            song=song,
                            songmetadata=songmetadata,
-                           songLink = songLink)
+                           songLink = songLink,
+                           song_position=song_positon)
 
 #####################################################
 #   Query (6)

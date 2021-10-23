@@ -606,13 +606,36 @@ def get_artist(artist_id):
     conn.close()                    # Close the connection to the db
     return None
 
+def get_media_playback_position(username, media_id):
+    conn = database_connect()
+    if(conn is None):
+        return None
+    cur = conn.cursor()
+    try:
+        sql = """
+            SELECT progress FROM mediaserver.UserMediaConsumption  WHERE username = %s AND media_id = %s;
+        """
+        r = dictfetchall(cur,sql,(username, media_id))
+        print("return val is:")
+        print(r)
+        cur.close()                     # Close the cursor
+        conn.close()                    # Close the connection to the db
+        return r
+    except:
+        # If there were any errors, return a NULL row printing an error to the debug
+        print("Unexpected error updating the progress:", sys.exc_info()[0])
+        raise
+    cur.close()                     # Close the cursor
+    conn.close()                    # Close the connection to the db
+    return None
+
 def update_progress(username, media_id, progress):
     conn = database_connect()
     if(conn is None):
         return None
     cur = conn.cursor()
     try:
-        sql = """ UPDATE UserMediaConsumption 
+        sql = """ UPDATE mediaserver.UserMediaConsumption 
             SET progress = %s
             WHERE username = %s AND media_id = %s;
         """
@@ -628,6 +651,11 @@ def update_progress(username, media_id, progress):
         raise
     cur.close()                     # Close the cursor
     conn.close()                    # Close the connection to the db
+    return None
+
+
+def insert_UserMediaConsumption(username, media_id, play_count, progress, lastviwed):
+    
     return None
 #####################################################
 #   Query (2 a,b,c)
@@ -651,7 +679,7 @@ def get_song(song_id):
         # Fill in the SQL below with a query to get all information about a song    #
         # and the artists that performed it                                         #
         #############################################################################
-        sql = """ SELECT S.song_title, A.artist_name, S.length
+        sql = """ SELECT S.song_id, S.song_title, A.artist_name, S.length
         FROM (mediaserver.Song_Artists SA NATURAL JOIN mediaserver.Song S) NATURAL JOIN mediaserver.Artist A
         WHERE song_id = %s;
         """
@@ -674,7 +702,7 @@ def get_song(song_id):
 #   Query (2 d)
 #   Get metadata for one song
 #####################################################
-def get_song_metadata(song_id):
+def get_song_metadata(media_id):
     """
     Get the meta for a song by their ID in your media server
     """
@@ -697,7 +725,7 @@ def get_song_metadata(song_id):
             WHERE media_id = %s;
         """
 
-        r = dictfetchall(cur,sql,(song_id,))
+        r = dictfetchall(cur,sql,(media_id,))
         print("return val is:")
         print(r)
         cur.close()                     # Close the cursor

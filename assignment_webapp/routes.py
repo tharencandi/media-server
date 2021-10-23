@@ -415,6 +415,8 @@ def single_song(song_id):
 
     if songmetadata == None:
         songmetadata = []
+    if songLink == None:
+        songLink = [] 
 
     return render_template('singleitems/song.html',
                            session=session,

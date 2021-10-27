@@ -629,17 +629,31 @@ def get_media_playback_position(username, media_id):
     conn.close()                    # Close the connection to the db
     return None
 
-def update_progress(username, media_id, progress):
+def update_progress(username, media_id, progress, lastviewed):
     conn = database_connect()
     if(conn is None):
         return None
     cur = conn.cursor()
     try:
-        sql = """ UPDATE mediaserver.UserMediaConsumption 
-            SET progress = %s
-            WHERE username = %s AND media_id = %s;
-        """
-        r = dictfetchall(cur,sql,(progress, username, media_id))
+        sql = """SELECT EXISTS (SELECT * FROM mediaserver.UserMediaConsumption WHERE media_id =%s AND username = %s) as exists; """
+
+        r = dictfetchall(cur, sql, (media_id, username))
+        print("return val is:")
+        print(r)
+
+        if r[0]['exists'] == True:
+            sql = """ UPDATE mediaserver.UserMediaConsumption 
+                SET progress = %s, 
+                playcount = (SELECT CASE WHEN playcount=NULL THEN 0 ELSE playcount END FROM mediaserver.UserMediaConsumption WHERE username = %s AND media_id = %s)) + 1,
+                lastviewed = %s
+                WHERE username = %s AND media_id = %s;
+            """
+            r = dictfetchall(cur,sql,(progress, username, media_id, lastviewed, username, media_id))
+        else:
+            sql = """INSERT INTO mediaserver.UserMediaConsumption(username, media_id, play_count, progress, lastviewed)
+             VALUES(%s, %s, 1, %s, %s);
+            """
+            r = dictfetchall(cur,sql,(username, media_id, progress, lastviewed))
         print("return val is:")
         print(r)
         cur.close()                     # Close the cursor
@@ -654,8 +668,9 @@ def update_progress(username, media_id, progress):
     return None
 
 
-def insert_UserMediaConsumption(username, media_id, play_count, progress, lastviwed):
-    
+def insert_UserMediaConsumption(username, media_id, play_count, progress, lastviewed):
+    # plaucount 1
+    #lastviewed = null
     return None
 #####################################################
 #   Query (2 a,b,c)

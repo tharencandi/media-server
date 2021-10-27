@@ -13,6 +13,7 @@ You will have to make
 from modules import *
 from flask import *
 import database
+import datetime
 
 user_details = {}                   # User details kept for us
 session = {}                        # Session information (logged in state)
@@ -96,9 +97,9 @@ def update_progress(media_id):
 
     #we need to extract song duraction from here to calc progress
     #meta = database.get_song_metadata(media_id)
-
+    now = datetime.date.today()
     if username:
-        check = database.update_progress(username, media_id, current_playback_time)
+        check = database.update_progress(username, media_id, current_playback_time, now )
     print("setting progress to {} on {}".format(current_playback_time, media_id))
     return ""
     #call  update progress database method

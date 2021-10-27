@@ -15,6 +15,7 @@ from flask import *
 import database
 import datetime
 
+
 user_details = {}                   # User details kept for us
 session = {}                        # Session information (logged in state)
 page = {}                           # Determines the page information

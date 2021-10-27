@@ -393,7 +393,6 @@ def get_allsongs():
             ) as saa  on (s.song_id=saa.song_id)
         group by s.song_id, s.song_title
         order by s.song_id"""
-
         r = dictfetchall(cur,sql)
         print("return val is:")
         print(r)
@@ -644,27 +643,34 @@ def update_progress(username, media_id, progress, lastviewed):
         if r[0]['exists'] == True:
             sql = """ UPDATE mediaserver.UserMediaConsumption 
                 SET progress = %s, 
-                playcount = (SELECT CASE WHEN playcount=NULL THEN 0 ELSE playcount END FROM mediaserver.UserMediaConsumption WHERE username = %s AND media_id = %s)) + 1,
+                play_count = (SELECT CASE WHEN play_count is NULL THEN 0 ELSE play_count END FROM mediaserver.UserMediaConsumption WHERE username = %s AND media_id = %s) + 1,
                 lastviewed = %s
                 WHERE username = %s AND media_id = %s;
             """
-            r = dictfetchall(cur,sql,(progress, username, media_id, lastviewed, username, media_id))
+            cur.execute(sql,(progress, username, media_id, lastviewed, username, media_id))
+            print(f" row count {cur.rowcount }")
+            print(f"PROGRESS {progress}")
+          
         else:
             sql = """INSERT INTO mediaserver.UserMediaConsumption(username, media_id, play_count, progress, lastviewed)
              VALUES(%s, %s, 1, %s, %s);
             """
-            r = dictfetchall(cur,sql,(username, media_id, progress, lastviewed))
+            cur.execute(sql,(username, media_id, progress, lastviewed))
+
+        conn.commit()
         print("return val is:")
         print(r)
         cur.close()                     # Close the cursor
         conn.close()                    # Close the connection to the db
         return r
     except:
+        conn.rollback()
         # If there were any errors, return a NULL row printing an error to the debug
         print("Unexpected error updating the progress:", sys.exc_info()[0])
+        cur.close()                     # Close the cursor
+        conn.close()                    # Close the connection to the db
         raise
-    cur.close()                     # Close the cursor
-    conn.close()                    # Close the connection to the db
+                    
     return None
 
 

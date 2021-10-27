@@ -53,12 +53,13 @@
                     
                    
                     document.querySelectorAll('audio').forEach(aud => {
-
-                        aud.onload = () => {
+                     
                             if ('{{song_position}}' != "None") {
+                                
                                 aud.currentTime = '{{song_position[0].progress}}';
                             }
-                        }
+                        
+                       
                        
                        
                         aud.onpause = () => {

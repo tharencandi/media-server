@@ -1224,9 +1224,9 @@ def get_all_tvshoweps_for_tvshow(tvshow_id):
         # Fill in the SQL below with a query to get all information about all       #
         # tv episodes in a tv show                                                  #
         #############################################################################
-        sql = """select media_id, tvshow_episode_title, season, episode, air_date
-        FROM TVShow join TVEpisode using (tvshow_id)
-        WHERE tvshow_id=%s;
+        sql = """select s.media_id, s.tvshow_episode_title, s.season, s.episode, s.air_date
+        FROM (mediaserver.TVShow join mediaserver.TVEpisode using (tvshow_id)) as s
+        WHERE s.tvshow_id=%s;
         """
 
         r = dictfetchall(cur,sql,(tvshow_id,))

@@ -21,6 +21,16 @@
                         </tr>
                     </thead>
                     <tbody>
+                        <!--  if podcast_episodes -->
+                    {% for ep in podcast_episodes %}
+                        <tr>
+                            <td>{{ep.media_id}}</td>
+                            <td>{{ep.podcast_episode_title}}</td>
+                            <td>{{ep.podcast_episode_uri}}</td>
+                            <td>{{ep.podcast_episode_published_date}}</td>
+                            <td>{{ep.podcast_episode_length}}</td>
+                        </tr>
+                    {% endfor %}
                         <!-- Add a for loop to iterate over the episodes -->
                     </tbody>
         

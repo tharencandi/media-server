@@ -842,6 +842,7 @@ def get_album(album_id):
         ON (a.album_id=amd.album_id)
         WHERE a.album_id=%s
         """
+        
 
         r = dictfetchall(cur,sql,(album_id,))
         print("return val is:")
@@ -880,8 +881,9 @@ def get_album_songs(album_id):
         # Fill in the SQL below with a query to get all information about all       #
         # songs in an album, including their artists                                #
         #############################################################################
-        sql = """
-        
+        sql = """SELECT *
+        FROM mediaserver.Song JOIN mediaserver.Album_Songs USING (song_id)
+        WHERE album_id=%s;
         """
 
         r = dictfetchall(cur,sql,(album_id,))
@@ -923,9 +925,10 @@ def get_album_genres(album_id):
         #############################################################################
         sql = """
         SELECT DISTINCT a.album_id, md.md_value AS genre
-        FROM mediaserver.Album a JOIN mediaserver.Album_Songs as USING (album_id)
+        FROM mediaserver.Album a 
+                JOIN mediaserver.Album_Songs as ON (a.album_id=as.album_id)
                 JOIN mediaserver.AudioMedia am ON (as.song_id=am.media_id)
-                JOIN mediaserver.MediaItemMetaData mimd ON (am.media_id=mimd.md_id)
+                JOIN mediaserver.MediaItemMetaData mimd ON (am.media_id=mimd.media_id)
                 JOIN mediaserver.MetaData md ON (mimd.md_id=md.md_id)
                 JOIN mediaserver.MetaDataType mdt ON (md.md_type_id=mdt.md_type_id)
         WHERE mdt.md_type_name='song genre' AND a.album_id=%s

@@ -756,11 +756,16 @@ def get_podcast(podcast_id):
         # Fill in the SQL below with a query to get all information about a podcast #
         # including all metadata associated with it                                 #
         #############################################################################
-        sql = """select podcast_id, podcast_title, podcast_uri, podcast_last_updated
-        FROM from mediaserver.podcast a left outer join 
-            (mediaserver.podcastmetadata natural join mediaserver.metadata natural join mediaserver.MetaDataType) amd
-        on (a.podcast_id=amd.podcast_id)
-        where a.podcast_id=%s;
+        sql = """
+        select podcast.podcast_id, podcast_title, podcast_uri, podcast_last_updated
+            FROM mediaserver.podcast as podcast
+            left join
+                (mediaserver.podcastmetadata 
+                    natural join mediaserver.metadata 
+                        natural join mediaserver.MetaDataType
+                ) as pmd
+                on (podcast.podcast_id=pmd.podcast_id)
+        where podcast.podcast_id=%s;
         """
 
         r = dictfetchall(cur,sql,(podcast_id,))
@@ -799,10 +804,15 @@ def get_all_podcasteps_for_podcast(podcast_id):
         # Fill in the SQL below with a query to get all information about all       #
         # podcast episodes in a podcast                                             #
         #############################################################################
-        
-        sql = """select podcast_id, podcast_episode_title, podcast_episode_URI, 
-        podcast_episode_published_date, podcast_episode_length
-        FROM PodcastEpisode;  
+        sql = """
+        SELECT 
+            podcast_id, 
+            podcast_episode_title, 
+            podcast_episode_URI, 
+            podcast_episode_published_date, 
+            podcast_episode_length
+        FROM mediaserver.PodcastEpisode
+        WHERE podcast_id=%s;  
         """
         r = dictfetchall(cur,sql,(podcast_id,))
         print("return val is:")

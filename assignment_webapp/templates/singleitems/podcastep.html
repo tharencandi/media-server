@@ -1,12 +1,18 @@
 {% include 'top.html' %}
 <div class="content">
     <div class="container details">
+        
         <!-- TODO Query (7)
         Display All Relevant Podcast Episode Infromation including meta data
         -->
         {% if podcastep | length > 0 %}
             <h2 class="title"> {{podcastep[0].podcast_episode_title}} ({{podcastep[0].podcast_episode_published_date}})</h2>
             <hr/>
+            <audio controls class="audio">
+                <source src="{{media_playback['storage_location'].storage_location}}" type="audio/mp3" preload="auto">
+              Your browser does not support the audio element.
+            </audio>
+            
             <h3> Artworks </h3>
             {% for instance in podcastep %}
                 {% if instance.md_type_name == 'artwork' %}
@@ -26,6 +32,35 @@
         <!-- TODO - Query (10)
         You will have to modify the above approach slightly to make each genre clickable
         -->
+        
+        <script>
+
+            //event handlers trigger functions after listening to particular events on an HTML page
+            //DOMContentLoaded gets trigger when the webpage content loads up
+    
+            // () => is an arrow function (will trigger function)
+            document.addEventListener('DOMContentLoaded', () => {
+    
+            document.querySelectorAll('audio').forEach(aud => {
+                    if ("{{media_playback['position']}}" != "None") {  
+                        aud.currentTime = "{{media_playback['position'].progress}}";
+                    }
+    
+                aud.onpause = () => {
+                    const request = new XMLHttpRequest();
+                    const id = "{{media_playback['media_id']}}"
+                    request.open('POST', "/update_progress/" + id);
+                    //define what happens with response data
+                    request.onload = () => {
+                        console.log("done")
+                    };
+                    var data = new FormData();
+                    data.append('progress', aud.currentTime)
+                    request.send(aud.currentTime);
+                };
+            });
+            });
+        </script>
         {% else %}
             <h2 class="title"> Invalid Podcast Episode ID</h2>
         {% endif %}

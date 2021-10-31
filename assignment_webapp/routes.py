@@ -91,9 +91,11 @@ def update_progress(media_id):
    # print(request.get_json())
     #stuff = request.get_json()
     #print(stuff['progress'])
-
-    username = user_details['username']
-
+    username = None
+    if 'username' in user_details:
+        username = user_details['username']
+    else:
+        return
     #media_id = None 
 
     #we need to extract song duraction from here to calc progress
@@ -396,6 +398,24 @@ def single_artist(artist_id):
                            artist=artist)
 
 
+def get_playback_dict(media_id):
+    media_playback = {}
+    media_position = []
+    storage_location = database.get_mediaLink(media_id)
+    
+    if 'username' in user_details:
+        media_position = database.get_media_playback_position(user_details['username'],media_id)
+    
+    if len(storage_location) > 0:
+        media_playback['storage_location'] = storage_location[0]
+    if len(media_position) > 0:
+         media_playback['position'] = media_position[0]
+    else:
+        media_playback['position'] = "None"
+
+    media_playback['media_id'] = media_id
+    return media_playback
+
 #####################################################
 #   Individual Song
 #####################################################
@@ -418,12 +438,7 @@ def single_song(song_id):
     songmetadata = None
     songmetadata = database.get_song_metadata(song_id)
 
-    songLink = None 
-    songLink = database.get_mediaLink(song_id)
-
-    song_positon = "None"
-    if 'username' in user_details:
-        song_positon = database.get_media_playback_position(user_details['username'],song_id)
+    media_playback = get_playback_dict
 
     # Data integrity checks
     if song == None:
@@ -431,17 +446,14 @@ def single_song(song_id):
     
     if songmetadata == None:
         songmetadata = []
-    if songLink == None:
-        songLink = [] 
-
+  
     return render_template('singleitems/song.html',
                            session=session,
                            page=page,
                            user=user_details,
                            song=song,
                            songmetadata=songmetadata,
-                           songLink = songLink,
-                           song_position=song_positon)
+                           media_playback=media_playback)
 
 #####################################################
 #   Query (6)
@@ -519,12 +531,15 @@ def single_podcastep(media_id):
     # Once retrieved, do some data integrity checks on the data
     if podcastep == None:
         podcastep = []
+
+    media_playback = get_playback_dict(media_id)    
     # NOTE :: YOU WILL NEED TO MODIFY THIS TO PASS THE APPROPRIATE VARIABLES
     return render_template('singleitems/podcastep.html',
                            session=session,
                            page=page,
                            user=user_details,
-                           podcastep=podcastep)
+                           podcastep=podcastep,
+                           media_playback=media_playback)
 
 
 #####################################################

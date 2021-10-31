@@ -924,14 +924,14 @@ def get_album_genres(album_id):
         # genres in an album (based on all the genres of the songs in that album)   #
         #############################################################################
         sql = """
-        SELECT DISTINCT a.album_id, md.md_value AS genre
-        FROM mediaserver.Album a 
-                JOIN mediaserver.Album_Songs as ON (a.album_id=as.album_id)
-                JOIN mediaserver.AudioMedia am ON (as.song_id=am.media_id)
+        SELECT DISTINCT album.album_id, md.md_value AS genre
+        FROM mediaserver.Album album 
+                JOIN mediaserver.Album_Songs asong ON (album.album_id=asong.album_id)
+                JOIN mediaserver.AudioMedia am ON (asong.song_id=am.media_id)
                 JOIN mediaserver.MediaItemMetaData mimd ON (am.media_id=mimd.media_id)
                 JOIN mediaserver.MetaData md ON (mimd.md_id=md.md_id)
                 JOIN mediaserver.MetaDataType mdt ON (md.md_type_id=mdt.md_type_id)
-        WHERE mdt.md_type_name='song genre' AND a.album_id=%s
+        WHERE mdt.md_type_name='song genre' AND album.album_id=%s
         """
 
         r = dictfetchall(cur,sql,(album_id,))

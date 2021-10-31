@@ -430,7 +430,8 @@ def single_song(song_id):
     #     return redirect(url_for('login'))
 
     page['title'] = 'Song'
-
+    if(database.songExists(song_id) == False):
+        return render_template('invalid.html')
     # Get a list of all song by song_id from the database
     song = None
     song = database.get_song(song_id)
@@ -446,7 +447,40 @@ def single_song(song_id):
     
     if songmetadata == None:
         songmetadata = []
-  
+    if songLink == None:
+        songLink = [] 
+    album_artwork = None
+    album_artwork = database.get_songs_album_artwork(song_id)
+
+    album_description = None 
+    album_description = database.get_songs_album_description(song_id)
+    print(album_description)
+    if len(album_description) == 0:
+        newdict = {'md_id': 0, 'md_type_name': 'description', 'md_value': 'No Description Available!'}
+        album_description.append(newdict)
+    print(album_description)
+    
+    i = 0
+    j = 0
+    for item in songmetadata:
+        if item['md_type_name'] != 'artwork':
+            i+=1
+            #print(i)
+        if item['md_type_name'] != 'description':
+            j+=1
+            print(j)
+    #if songmetadata['description'] == None:
+    if i == len(songmetadata):
+        print("yes")
+        songmetadata.append(album_artwork[0])
+    
+    if j+1 == len(songmetadata):
+        print("yes")
+        songmetadata.append(album_description[0])
+    print(songmetadata)
+    #if j == len(songmetadata):
+
+
     return render_template('singleitems/song.html',
                            session=session,
                            page=page,
@@ -973,13 +1007,15 @@ def add_song():
             print("We have a genre value: ",newdict['genre'])
         
         if ('artistid' not in request.form):
-            newdict['artistid'] = 'pop'
+            newdict['artistid'] = '0'
         else:
             newdict['artistid'] = request.form['artistid']
             print("We have a artist value: ",newdict['artistid'])
         
         print('newdict is:')
         print(newdict)
+        if (database.artistExists(newdict['artistid']) == False ):
+            return render_template('invalid.html')
         
         song_id = database.add_song_to_db(newdict['storage_location'],newdict['description'],newdict['song_title'],newdict['songlength'],newdict['genre'], newdict['artistid'])
 

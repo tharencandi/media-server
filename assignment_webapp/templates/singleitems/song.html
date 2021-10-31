@@ -28,13 +28,16 @@
             You will have to modify the approach below slightly to make each genre clickable
             -->
             <h3> Genres </h3>
+            <div>
             {% for instance in songmetadata %}
                 {% if instance.md_type_name == 'song genre' %}
                     <a href="{{url_for('single_genre', genre_id=instance.md_id, genre_type=instance.md_type_name)}}">
                     <td>{{instance.md_value}}</td>
+                    </a>
                     <br/>
                 {% endif %}
             {% endfor %}
+            </div>
             <h3> Audio </h3>
 
             <audio controls class="audio" id='{{song[0].song_id}}'>
@@ -60,8 +63,7 @@
                             }
                         
                        
-                       
-                       
+                    
                         aud.onpause = () => {
                             const request = new XMLHttpRequest();
                             const id = '{{song[0].song_id}}'

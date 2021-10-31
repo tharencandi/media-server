@@ -718,6 +718,51 @@ def get_song(song_id):
     cur.close()                     # Close the cursor
     conn.close()                    # Close the connection to the db
     return None
+def artistExists(artist_id):
+    conn = database_connect()
+    if(conn is None):
+        return None
+    cur = conn.cursor()
+    try:
+        sql = "SELECT * FROM mediaserver.Artist WHERE artist_id=%s;"
+        r = dictfetchall(cur,sql,(artist_id,))
+        print("return val is:")
+        print(r)
+        cur.close()                     # Close the cursor
+        conn.close()                    # Close the connection to the db
+        if len(r) == 0:
+            return False
+        return True
+    except:
+        # If there were any errors, return a NULL row printing an error to the debug
+        print("Unexpected error getting All Songs:", sys.exc_info()[0])
+        raise
+    cur.close()                     # Close the cursor
+    conn.close()                    # Close the connection to the db
+    return None
+def songExists(song_id):
+    conn = database_connect()
+    if(conn is None):
+        return None
+    cur = conn.cursor()
+    try:
+        sql = "SELECT * FROM mediaserver.Song WHERE song_id=%s;"
+        r = dictfetchall(cur,sql,(song_id,))
+        print("return val is:")
+        print(r)
+        cur.close()                     # Close the cursor
+        conn.close()                    # Close the connection to the db
+        if len(r) == 0:
+            return False
+        return True
+    except:
+        # If there were any errors, return a NULL row printing an error to the debug
+        print("Unexpected error getting All Songs:", sys.exc_info()[0])
+        raise
+    cur.close()                     # Close the cursor
+    conn.close()                    # Close the connection to the db
+    return None
+
 
 #####################################################
 #   Query (2 d)
@@ -1011,6 +1056,63 @@ def get_album_songs(album_id):
     conn.close()                    # Close the connection to the db
     return None
 
+def get_songs_album_artwork(song_id):
+    conn = database_connect()
+    if(conn is None):
+        return None
+    cur = conn.cursor()
+    try:
+        sql = """SELECT md.md_id, mdt.md_type_name, md.md_value, album.album_id 
+        FROM mediaserver.Song S 
+		JOIN mediaserver.Album_Songs albumSong ON (S.song_id = albumSong.song_id)
+	            JOIN mediaserver.Album album ON (albumSong.album_id=album.album_id)
+				JOIN mediaserver.AlbumMetadata albumMeta ON (album.album_id = albumMeta.album_id)
+                JOIN mediaserver.MetaData md ON (albumMeta.md_id=md.md_id)
+                JOIN mediaserver.MetaDataType mdt ON (md.md_type_id=mdt.md_type_id)
+        WHERE mdt.md_type_name='artwork' AND albumSong.song_id=%s;
+        """
+        r = dictfetchall(cur,sql,(song_id,))
+        print("return val is:")
+        print(r)
+        cur.close()                     # Close the cursor
+        conn.close()                    # Close the connection to the db
+        return r
+    except:
+        # If there were any errors, return a NULL row printing an error to the debug
+        print("Unexpected error getting Albums genres with ID: "+song_id, sys.exc_info()[0])
+        raise
+    cur.close()                     # Close the cursor
+    conn.close()                    # Close the connection to the db
+    return None
+
+def get_songs_album_description(song_id):
+    conn = database_connect()
+    if(conn is None):
+        return None
+    cur = conn.cursor()
+    try:
+        sql = """ SELECT md.md_id, mdt.md_type_name, md.md_value, album.album_id 
+        FROM mediaserver.Song S 
+		JOIN mediaserver.Album_Songs albumSong ON (S.song_id = albumSong.song_id)
+	            JOIN mediaserver.Album album ON (albumSong.album_id=album.album_id)
+				JOIN mediaserver.AlbumMetadata albumMeta ON (album.album_id = albumMeta.album_id)
+                JOIN mediaserver.MetaData md ON (albumMeta.md_id=md.md_id)
+                JOIN mediaserver.MetaDataType mdt ON (md.md_type_id=mdt.md_type_id)
+        WHERE mdt.md_type_name='description' AND albumSong.song_id=%s;
+        """
+        r = dictfetchall(cur,sql,(song_id,))
+        print("return val is:")
+        print(r)
+        cur.close()                     # Close the cursor
+        conn.close()                    # Close the connection to the db
+        return r
+    except:
+        # If there were any errors, return a NULL row printing an error to the debug
+        print("Unexpected error getting Albums genres with ID: "+song_id, sys.exc_info()[0])
+        raise
+    cur.close()                     # Close the cursor
+    conn.close()                    # Close the connection to the db
+    return None
 
 #####################################################
 #   Query (5 c)

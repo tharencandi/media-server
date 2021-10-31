@@ -393,7 +393,6 @@ def get_allsongs():
             ) as saa  on (s.song_id=saa.song_id)
         group by s.song_id, s.song_title
         order by s.song_id"""
-
         r = dictfetchall(cur,sql)
         print("return val is:")
         print(r)
@@ -606,17 +605,16 @@ def get_artist(artist_id):
     conn.close()                    # Close the connection to the db
     return None
 
-def update_progress(username, media_id, progress):
+def get_media_playback_position(username, media_id):
     conn = database_connect()
     if(conn is None):
         return None
     cur = conn.cursor()
     try:
-        sql = """ UPDATE UserMediaConsumption 
-            SET progress = %s
-            WHERE username = %s AND media_id = %s;
+        sql = """
+            SELECT progress FROM mediaserver.UserMediaConsumption  WHERE username = %s AND media_id = %s;
         """
-        r = dictfetchall(cur,sql,(progress, username, media_id))
+        r = dictfetchall(cur,sql,(username, media_id))
         print("return val is:")
         print(r)
         cur.close()                     # Close the cursor
@@ -628,6 +626,57 @@ def update_progress(username, media_id, progress):
         raise
     cur.close()                     # Close the cursor
     conn.close()                    # Close the connection to the db
+    return None
+
+def update_progress(username, media_id, progress, lastviewed):
+    conn = database_connect()
+    if(conn is None):
+        return None
+    cur = conn.cursor()
+    try:
+        sql = """SELECT EXISTS (SELECT * FROM mediaserver.UserMediaConsumption WHERE media_id =%s AND username = %s) as exists; """
+
+        r = dictfetchall(cur, sql, (media_id, username))
+        print("return val is:")
+        print(r)
+
+        if r[0]['exists'] == True:
+            sql = """ UPDATE mediaserver.UserMediaConsumption 
+                SET progress = %s, 
+                play_count = (SELECT CASE WHEN play_count is NULL THEN 0 ELSE play_count END FROM mediaserver.UserMediaConsumption WHERE username = %s AND media_id = %s) + 1,
+                lastviewed = %s
+                WHERE username = %s AND media_id = %s;
+            """
+            cur.execute(sql,(progress, username, media_id, lastviewed, username, media_id))
+            print(f" row count {cur.rowcount }")
+            print(f"PROGRESS {progress}")
+          
+        else:
+            sql = """INSERT INTO mediaserver.UserMediaConsumption(username, media_id, play_count, progress, lastviewed)
+             VALUES(%s, %s, 1, %s, %s);
+            """
+            cur.execute(sql,(username, media_id, progress, lastviewed))
+
+        conn.commit()
+        print("return val is:")
+        print(r)
+        cur.close()                     # Close the cursor
+        conn.close()                    # Close the connection to the db
+        return r
+    except:
+        conn.rollback()
+        # If there were any errors, return a NULL row printing an error to the debug
+        print("Unexpected error updating the progress:", sys.exc_info()[0])
+        cur.close()                     # Close the cursor
+        conn.close()                    # Close the connection to the db
+        raise
+                    
+    return None
+
+
+def insert_UserMediaConsumption(username, media_id, play_count, progress, lastviewed):
+    # plaucount 1
+    #lastviewed = null
     return None
 #####################################################
 #   Query (2 a,b,c)
@@ -651,7 +700,7 @@ def get_song(song_id):
         # Fill in the SQL below with a query to get all information about a song    #
         # and the artists that performed it                                         #
         #############################################################################
-        sql = """ SELECT S.song_title, A.artist_name, S.length
+        sql = """ SELECT S.song_id, S.song_title, A.artist_name, S.length
         FROM (mediaserver.Song_Artists SA NATURAL JOIN mediaserver.Song S) NATURAL JOIN mediaserver.Artist A
         WHERE song_id = %s;
         """
@@ -674,7 +723,7 @@ def get_song(song_id):
 #   Query (2 d)
 #   Get metadata for one song
 #####################################################
-def get_song_metadata(song_id):
+def get_song_metadata(media_id):
     """
     Get the meta for a song by their ID in your media server
     """
@@ -697,7 +746,7 @@ def get_song_metadata(song_id):
             WHERE media_id = %s;
         """
 
-        r = dictfetchall(cur,sql,(song_id,))
+        r = dictfetchall(cur,sql,(media_id,))
         print("return val is:")
         print(r)
         cur.close()                     # Close the cursor

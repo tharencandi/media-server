@@ -991,7 +991,9 @@ def get_album_songs(album_id):
         # songs in an album, including their artists                                #
         #############################################################################
         sql = """SELECT *
-        FROM mediaserver.Song JOIN mediaserver.Album_Songs USING (song_id)
+        FROM ((mediaserver.Song JOIN mediaserver.Album_Songs USING (song_id)) 
+        JOIN mediaserver.Song_Artists SA USING (song_id)) 
+        JOIN mediaserver.Artist A ON (A.artist_id = SA.performing_artist_id)
         WHERE album_id=%s;
         """
 

@@ -3,7 +3,7 @@
     <div class="container details">
         <!-- Check if We have a valid song -->
         {% if song | length > 0 %}
-            <h2 class="title"> {{song[0].song_title}} by {{song[0].artists}}</h2>
+            <h2 class="title"> {{song[0].song_title}} by {{song[0].artist_name}}</h2>
             <br/>
             Song is {{song[0].length}} seconds long.
             <hr/>

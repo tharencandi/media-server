@@ -1,24 +1,26 @@
+//event handlers trigger functions after listening to particular events on an HTML page
+//DOMContentLoaded gets trigger when the webpage content loads up
 
-// get audio player
-audio = document.getElementsByClassName('audio');
-console.log(document.getElementsByTagName('audio'))
+// () => is an arrow function (will trigger function)
+document.addEventListener('DOMContentLoaded', () => {
 
-$(audio).on('pause','.audio',function(e)
-        { 
-            console.log("hello")
-            song_id = e.target.id;
-            save_progress(e, song_id);
-        });
+  document.querySelectorAll('audio').forEach(aud => {
+    
+          if ("{{media_playback['position']}}" != "None") {  
+              aud.currentTime = "{{media_playback['position'].progress}}";
+          }
 
-function save_progress(e, song_id) {
-        console.log('event recieved');
-        e.preventDefault();
-        $.ajax({
-          type:'POST',
-          url:'/update_progress/${song_id}',
-          data:{
-            progress: audio.currentTime
-          },
-          success: console.log('plz')
-        })
-}
+      aud.onpause = () => {
+          const request = new XMLHttpRequest();
+          const id = "{{media_playback['media_id']}}"
+          request.open('POST', "/update_progress/" + id);
+          //define what happens with response data
+          request.onload = () => {
+              console.log("done")
+          };
+          var data = new FormData();
+          data.append('progress', aud.currentTime)
+          request.send(aud.currentTime);
+      };
+  });
+});

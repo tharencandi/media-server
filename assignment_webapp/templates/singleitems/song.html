@@ -3,7 +3,7 @@
     <div class="container details">
         <!-- Check if We have a valid song -->
         {% if song | length > 0 %}
-            <h2 class="title"> {{song[0].song_title}} by {{song[0].artist_name}}</h2>
+            <h2 class="title"> {{song[0].song_title}} by {{song[0].artists}}</h2>
             <br/>
             Song is {{song[0].length}} seconds long.
             <hr/>
@@ -40,46 +40,37 @@
             </div>
             <h3> Audio </h3>
 
-            <audio controls class="audio" id='{{song[0].song_id}}'>
-                <source src="{{songLink[0].storage_location}}" type="audio/mp3" preload="auto">
+            <audio controls class="audio">
+                <source src="{{media_playback['storage_location'].storage_location}}" type="audio/mp3" preload="auto">
               Your browser does not support the audio element.
-              </audio>
-              <input type="button" value="sound" onclick="togglePlay()" />
+            </audio>
+            <script>
 
-            <script> 
-            //event handlers trigger functions after listening to particular events on an HTML page
+                //event handlers trigger functions after listening to particular events on an HTML page
                 //DOMContentLoaded gets trigger when the webpage content loads up
-               
+        
                 // () => is an arrow function (will trigger function)
                 document.addEventListener('DOMContentLoaded', () => {
-
-                    
-                   
-                    document.querySelectorAll('audio').forEach(aud => {
-                     
-                            if ('{{song_position}}' != "None") {
-                                
-                                aud.currentTime = '{{song_position[0].progress}}';
-                            }
-                        
-                       
-                    
-                        aud.onpause = () => {
-                            const request = new XMLHttpRequest();
-                            const id = '{{song[0].song_id}}'
-                            request.open('POST', "/update_progress/" + id);
-                            //define what happens with response data
-                            request.onload = () => {
-                                console.log("done")
-                            };
-                            var data = new FormData();
-                            data.append('progress', aud.currentTime)
-                            request.send(aud.currentTime);
+        
+                document.querySelectorAll('audio').forEach(aud => {
+                        if ("{{media_playback['position']}}" != "None") {  
+                            aud.currentTime = "{{media_playback['position'].progress}}";
+                        }
+        
+                    aud.onpause = () => {
+                        const request = new XMLHttpRequest();
+                        const id = "{{media_playback['media_id']}}"
+                        request.open('POST', "/update_progress/" + id);
+                        //define what happens with response data
+                        request.onload = () => {
+                            console.log("done")
                         };
-                    });
+                        var data = new FormData();
+                        data.append('progress', aud.currentTime)
+                        request.send(aud.currentTime);
+                    };
                 });
-
-            
+                });
             </script>
         {% else %}
             <h2 class="title"> Invalid Song ID</h2>

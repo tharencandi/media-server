@@ -1569,7 +1569,7 @@ def find_matchingmovies(searchterm):
 #####################################################
 #   Add a new Movie
 #####################################################
-def add_movie_to_db(title,release_year,description,storage_location,genre):
+def add_movie_to_db(title,release_year,description,storage_location,genre,artwork):
     """
     Add a new Movie to your media server
     """
@@ -1582,10 +1582,10 @@ def add_movie_to_db(title,release_year,description,storage_location,genre):
         sql = """
         SELECT 
             mediaserver.addMovie(
-                %s,%s,%s,%s,%s);
+                %s,%s,%s,%s,%s,%s);
         """
 
-        cur.execute(sql,(storage_location,description,title,release_year,genre))
+        cur.execute(sql,(storage_location,description,title,release_year,genre,artwork))
         conn.commit()                   # Commit the transaction
         r = cur.fetchone()
         print("return val is:")

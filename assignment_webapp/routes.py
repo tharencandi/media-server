@@ -594,7 +594,8 @@ def single_movie(movie_id):
     # Get a list of all movies by movie_id from the database
     movie = None
     movie = database.get_movie(movie_id)
-
+    
+    media_playback = get_playback_dict(movie_id)
 
     # Data integrity checks
     if movie == None:
@@ -605,7 +606,8 @@ def single_movie(movie_id):
                            session=session,
                            page=page,
                            user=user_details,
-                           movie=movie)
+                           movie=movie,
+                           media_playback=media_playback)
 
 
 #####################################################
@@ -934,7 +936,7 @@ def add_movie():
         print(newdict)
 
         #forward to the database to manage insert
-        movies = database.add_movie_to_db(newdict['movie_title'],newdict['release_year'],newdict['description'],newdict['storage_location'],newdict['film_genre'])
+        movies = database.add_movie_to_db(newdict['movie_title'],newdict['release_year'],newdict['description'],newdict['storage_location'],newdict['film_genre'],newdict['artwork'])
 
 
         max_movie_id = database.get_last_movie()[0]['movie_id']

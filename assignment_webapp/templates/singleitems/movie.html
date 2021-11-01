@@ -5,6 +5,7 @@
         {% if movie | length > 0 %}
             <h2 class="title"> {{movie[0].movie_title}} ({{movie[0].release_year}})</h2>
             <hr/>
+            <p>{{movie}}</p>
             <h3> Artworks </h3>
             {% for instance in movie %}
                 {% if instance.md_type_name == 'artwork' %}
@@ -29,9 +30,45 @@
                 {% if instance.md_type_name == 'film genre' %}
                         <a href="{{url_for('single_genre', genre_id=instance.md_id, genre_type=instance.md_type_name)}}">
                         <td>{{instance.md_value}}</td>
+                        </a>
                         <br/>
                 {% endif %}
             {% endfor %}
+            <h3> Watch </h3>
+            <video controls class="video">
+                <source src="{{url_for('static', filename=media_playback['storage_location'].storage_location)}}" type="video/mp4" preload="auto">
+              Your browser does not support the video element.
+            </video>
+
+            <script>
+
+                //event handlers trigger functions after listening to particular events on an HTML page
+                //DOMContentLoaded gets trigger when the webpage content loads up
+        
+                // () => is an arrow function (will trigger function)
+                document.addEventListener('DOMContentLoaded', () => {
+        
+                document.querySelectorAll('video').forEach(vid => {
+                        if ("{{media_playback['position']}}" != "None") {  
+                            vid.currentTime = "{{media_playback['position'].progress}}";
+                        }
+        
+                    vid.onpause = () => {
+                        const request = new XMLHttpRequest();
+                        const id = "{{media_playback['media_id']}}"
+                        request.open('POST', "/update_progress/" + id);
+                        //define what happens with response data
+                        request.onload = () => {
+                            console.log("done")
+                        };
+                        var data = new FormData();
+                        data.append('progress', vid.currentTime)
+                        request.send(vid.currentTime);
+                    };
+                });
+                });
+            </script>
+
         {% else %}
             <h2 class="title"> Invalid Movie ID</h2>
         {% endif %}

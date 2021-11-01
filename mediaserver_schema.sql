@@ -256,7 +256,8 @@ create or replace function mediaserver.addmovie(
 	moviedescription text,
 	title varchar(250),
 	releaseyear int,
-	filmgenre text)
+	filmgenre text,
+    artwork text)
 RETURNS int AS
 $BODY$
 	WITH ins1 AS (
@@ -287,6 +288,16 @@ $BODY$
         ,ins6 AS (
         INSERT INTO mediaserver.MediaItemMetaData
         SELECT media_id, genre_md_id FROM ins1, ins5
+        )
+        ,ins7 AS (
+        INSERT INTO mediaserver.metadata (md_type_id,md_value)
+        SELECT md_type_id, artwork
+        FROM mediaserver.MetaDataType where md_type_name = 'art work'
+        RETURNING md_id as artwork_md_id
+        )
+        ,ins8 AS (
+        INSERT INTO mediaserver.MediaItemMetaData
+        SELECT media_id, artwork_md_id FROM ins1, ins7
         )
         INSERT INTO mediaserver.MediaItemMetaData
         SELECT media_id, md_id FROM ins1, ins2;

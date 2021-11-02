@@ -439,7 +439,7 @@ def single_song(song_id):
     songmetadata = None
     songmetadata = database.get_song_metadata(song_id)
 
-    media_playback = get_playback_dict
+    media_playback = get_playback_dict(song_id)
 
     # Data integrity checks
     if song == None:
@@ -447,11 +447,9 @@ def single_song(song_id):
     
     if songmetadata == None:
         songmetadata = []
-    if songLink == None:
-        songLink = [] 
+
     album_artwork = None
     album_artwork = database.get_songs_album_artwork(song_id)
-
     album_description = None 
     album_description = database.get_songs_album_description(song_id)
     print(album_description)
@@ -523,13 +521,6 @@ def single_podcast(podcast_id):
     if podcast_episodes == None:
         podcast_episodes = []
     # Set up some variables to manage the returns from the database fucntions
-    the_podcast = None
-    the_podcast = database.get_podcast(podcast_id)
-    
- 
-    # Once retrieved, do some data integrity checks on the data
-    if the_podcast == None:
-        the_podcast = []
         
     # NOTE :: YOU WILL NEED TO MODIFY THIS TO PASS THE APPROPRIATE VARIABLES
     return render_template('singleitems/podcast.html',
@@ -545,6 +536,7 @@ def single_podcast(podcast_id):
 #####################################################
 @app.route('/podcastep/<media_id>')
 def single_podcastep(media_id):
+    print("asdasdasdasssssssssssssssssss\n\n\n\n")
     """
     Show a single podcast epsiode by media_id in your media server
     Can do this without a login
@@ -557,7 +549,7 @@ def single_podcastep(media_id):
     # Fill in the Function below with to do all data handling for a podcast ep  #
     #############################################################################
 
-    page['title'] = 'List Podcast Epsiode' # Add the title
+    page['title'] = 'Podcast Episode' # Add the title
 
     # Set up some variables to manage the returns from the database fucntions
     podcastep = None

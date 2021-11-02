@@ -63,7 +63,7 @@ def index():
 
     if user_in_progress_items == None:
         user_in_progress_items = []
-
+    print(user_subscribed_podcasts)
     return render_template('index.html',
                            session=session,
                            page=page,

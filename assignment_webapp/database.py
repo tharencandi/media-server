@@ -274,14 +274,15 @@ def user_podcast_subscriptions(username):
         # Fill in the SQL below and get all the podcasts that the user is subscribed to #
         #################################################################################
 
-        sql = """ SELECT podcast_episode_title 
-            FROM mediaserver.PodcastEpisode PE NATURAL JOIN mediaserver.Subscribed_Podcasts SA
+        sql = """ SELECT podcast_title, podcast_uri, podcast_last_updated 
+            FROM mediaserver.Podcast PE NATURAL JOIN mediaserver.Subscribed_Podcasts SA
             WHERE SA.username = %s;
         """
 
 
         r = dictfetchall(cur,sql,(username,)) #returns dictionay (key, value)????
         print("return val is:")
+        #print(r)
         cur.close()                     # Close the cursor
         conn.close()                    # Close the connection to the db
         return r

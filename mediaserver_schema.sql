@@ -292,7 +292,7 @@ $BODY$
         ,ins7 AS (
         INSERT INTO mediaserver.metadata (md_type_id,md_value)
         SELECT md_type_id, artwork
-        FROM mediaserver.MetaDataType where md_type_name = 'art work'
+        FROM mediaserver.MetaDataType where md_type_name = 'artwork'
         RETURNING md_id as artwork_md_id
         )
         ,ins8 AS (

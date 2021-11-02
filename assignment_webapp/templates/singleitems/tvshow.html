@@ -29,6 +29,7 @@
             {% for instance in tvshow %}
                 {% if instance.md_type_name == 'film genre' %}
                     <div>
+                        <a href="{{url_for('single_genre', genre_id=instance.md_id, genre_type=instance.md_type_name)}}">
                         {{instance.md_value}}
                     </div>
                 {% endif %}

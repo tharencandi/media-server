@@ -851,7 +851,7 @@ def get_podcast(podcast_id):
         # including all metadata associated with it                                 #
         #############################################################################
         sql = """
-        select podcast.podcast_id, podcast_title, podcast_uri, podcast_last_updated
+        select *
             FROM mediaserver.podcast as podcast
             left join
                 (mediaserver.podcastmetadata 
@@ -900,7 +900,8 @@ def get_all_podcasteps_for_podcast(podcast_id):
         #############################################################################
         sql = """
         SELECT 
-            podcast_id, 
+            podcast_id,
+            media_id,
             podcast_episode_title, 
             podcast_episode_URI, 
             podcast_episode_published_date, 

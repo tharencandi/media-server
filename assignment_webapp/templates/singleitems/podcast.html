@@ -8,6 +8,52 @@
         <!-- TODO - Query (10)
         You will have to modify the above approach slightly to make each genre clickable
         -->
+        {% if podcast | length > 0 %}
+            <h2 class="title"> {{podcast[0].podcast_title}}</h2>
+            <hr/>
+
+            <h3> Descriptions </h3>
+            {% for instance in podcast %}
+                {% if instance.md_type_name == 'description' %}
+                    <div>
+                        {{instance.md_value}}
+                    </div>
+                {% endif %}
+            {% endfor %}
+            <h3> Artworks </h3>
+            {% for instance in podcast %}
+                {% if instance.md_type_name == 'artwork' %}
+                    <img src="{{instance.md_value}}" alt="image">
+                    <br/>© Amazon Public Domain 2019.
+                {% endif %}
+            {% endfor %}
+            <h3> Genres </h3>
+            {% for instance in podcast %}
+                {% if instance.md_type_name == 'podcast genre' %}
+                        <a href="{{url_for('single_genre', genre_id=instance.md_id, genre_type=instance.md_type_name)}}">
+                        <td>{{instance.md_value}}</td>
+                        <br/>
+                {% endif %}
+            {% endfor %}
+            <h3> Copyright </h3>
+            {% for instance in podcast %}
+                {% if instance.md_type_name == 'copyright holder' %}
+                        {{instance.md_value}}
+                {% endif %}
+            {% endfor %}
+            <h3>Last Updated</h3>
+            {{podcast[0].podcast_last_updated}}
+            <br/>
+            <h3>URI </h3>
+            {{podcast[0].podcast_uri}}
+            <br/>
+            <h3>ID </h3>
+            {{podcast[0].podcast_id}}
+            <br/>
+        {% else %}
+            <h2 class="title"> Invalid Podcasr ID</h2>
+        {% endif %}
+
                 <!-- Podcast Episodes -->
                 <h3>Episodes for this Podcast</h3>
                 <table class="styled">
@@ -23,7 +69,8 @@
                     <tbody>
                         <!--  if podcast_episodes -->
                     {% for ep in podcast_episodes %}
-                        <tr>
+                        <tr class="clickable-tr" data-href="{{url_for('single_podcastep', media_id=ep.media_id)}}">
+                            <!-- {{url_for('single_podcastep', media_id=ep.media_id)}} -->
                             <td>{{ep.media_id}}</td>
                             <td>{{ep.podcast_episode_title}}</td>
                             <td>{{ep.podcast_episode_uri}}</td>

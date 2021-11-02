@@ -439,7 +439,7 @@ def single_song(song_id):
     songmetadata = None
     songmetadata = database.get_song_metadata(song_id)
 
-    media_playback = get_playback_dict
+    media_playback = get_playback_dict(song_id)
 
     # Data integrity checks
     if song == None:
@@ -447,11 +447,9 @@ def single_song(song_id):
     
     if songmetadata == None:
         songmetadata = []
-    if songLink == None:
-        songLink = [] 
+
     album_artwork = None
     album_artwork = database.get_songs_album_artwork(song_id)
-
     album_description = None 
     album_description = database.get_songs_album_description(song_id)
     print(album_description)

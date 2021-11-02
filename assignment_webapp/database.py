@@ -274,14 +274,15 @@ def user_podcast_subscriptions(username):
         # Fill in the SQL below and get all the podcasts that the user is subscribed to #
         #################################################################################
 
-        sql = """ SELECT podcast_episode_title 
-            FROM mediaserver.PodcastEpisode PE NATURAL JOIN mediaserver.Subscribed_Podcasts SA
+        sql = """ SELECT podcast_title, podcast_uri, podcast_last_updated 
+            FROM mediaserver.Podcast PE NATURAL JOIN mediaserver.Subscribed_Podcasts SA
             WHERE SA.username = %s;
         """
 
 
         r = dictfetchall(cur,sql,(username,)) #returns dictionay (key, value)????
         print("return val is:")
+        #print(r)
         cur.close()                     # Close the cursor
         conn.close()                    # Close the connection to the db
         return r
@@ -1569,7 +1570,7 @@ def find_matchingmovies(searchterm):
 #####################################################
 #   Add a new Movie
 #####################################################
-def add_movie_to_db(title,release_year,description,storage_location,genre):
+def add_movie_to_db(title,release_year,description,storage_location,genre,artwork):
     """
     Add a new Movie to your media server
     """
@@ -1582,10 +1583,10 @@ def add_movie_to_db(title,release_year,description,storage_location,genre):
         sql = """
         SELECT 
             mediaserver.addMovie(
-                %s,%s,%s,%s,%s);
+                %s,%s,%s,%s,%s,%s);
         """
 
-        cur.execute(sql,(storage_location,description,title,release_year,genre))
+        cur.execute(sql,(storage_location,description,title,release_year,genre,artwork))
         conn.commit()                   # Commit the transaction
         r = cur.fetchone()
         print("return val is:")

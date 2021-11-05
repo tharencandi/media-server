@@ -63,7 +63,7 @@ def index():
 
     if user_in_progress_items == None:
         user_in_progress_items = []
-
+    print(user_subscribed_podcasts)
     return render_template('index.html',
                            session=session,
                            page=page,
@@ -91,9 +91,11 @@ def update_progress(media_id):
    # print(request.get_json())
     #stuff = request.get_json()
     #print(stuff['progress'])
-
-    username = user_details['username']
-
+    username = None
+    if 'username' in user_details:
+        username = user_details['username']
+    else:
+        return
     #media_id = None 
 
     #we need to extract song duraction from here to calc progress
@@ -396,6 +398,24 @@ def single_artist(artist_id):
                            artist=artist)
 
 
+def get_playback_dict(media_id):
+    media_playback = {}
+    media_position = []
+    storage_location = database.get_mediaLink(media_id)
+    
+    if 'username' in user_details:
+        media_position = database.get_media_playback_position(user_details['username'],media_id)
+    
+    if len(storage_location) > 0:
+        media_playback['storage_location'] = storage_location[0]
+    if len(media_position) > 0:
+         media_playback['position'] = media_position[0]
+    else:
+        media_playback['position'] = "None"
+
+    media_playback['media_id'] = media_id
+    return media_playback
+
 #####################################################
 #   Individual Song
 #####################################################
@@ -410,7 +430,8 @@ def single_song(song_id):
     #     return redirect(url_for('login'))
 
     page['title'] = 'Song'
-
+    if(database.songExists(song_id) == False):
+        return render_template('invalid.html')
     # Get a list of all song by song_id from the database
     song = None
     song = database.get_song(song_id)
@@ -418,12 +439,7 @@ def single_song(song_id):
     songmetadata = None
     songmetadata = database.get_song_metadata(song_id)
 
-    songLink = None 
-    songLink = database.get_mediaLink(song_id)
-
-    song_positon = "None"
-    if 'username' in user_details:
-        song_positon = database.get_media_playback_position(user_details['username'],song_id)
+    media_playback = get_playback_dict(song_id)
 
     # Data integrity checks
     if song == None:
@@ -431,8 +447,37 @@ def single_song(song_id):
     
     if songmetadata == None:
         songmetadata = []
-    if songLink == None:
-        songLink = [] 
+
+    album_artwork = None
+    album_artwork = database.get_songs_album_artwork(song_id)
+    album_description = None 
+    album_description = database.get_songs_album_description(song_id)
+    print(album_description)
+    if len(album_description) == 0:
+        newdict = {'md_id': 0, 'md_type_name': 'description', 'md_value': 'No Description Available!'}
+        album_description.append(newdict)
+    print(album_description)
+    
+    i = 0
+    j = 0
+    for item in songmetadata:
+        if item['md_type_name'] != 'artwork':
+            i+=1
+            #print(i)
+        if item['md_type_name'] != 'description':
+            j+=1
+            print(j)
+    #if songmetadata['description'] == None:
+    if i == len(songmetadata):
+        print("yes")
+        songmetadata.append(album_artwork[0])
+    
+    if j+1 == len(songmetadata):
+        print("yes")
+        songmetadata.append(album_description[0])
+    print(songmetadata)
+    #if j == len(songmetadata):
+
 
     return render_template('singleitems/song.html',
                            session=session,
@@ -440,8 +485,7 @@ def single_song(song_id):
                            user=user_details,
                            song=song,
                            songmetadata=songmetadata,
-                           songLink = songLink,
-                           song_position=song_positon)
+                           media_playback=media_playback)
 
 #####################################################
 #   Query (6)
@@ -477,13 +521,6 @@ def single_podcast(podcast_id):
     if podcast_episodes == None:
         podcast_episodes = []
     # Set up some variables to manage the returns from the database fucntions
-    the_podcast = None
-    the_podcast = database.get_podcast(podcast_id)
-    
- 
-    # Once retrieved, do some data integrity checks on the data
-    if the_podcast == None:
-        the_podcast = []
         
     # NOTE :: YOU WILL NEED TO MODIFY THIS TO PASS THE APPROPRIATE VARIABLES
     return render_template('singleitems/podcast.html',
@@ -499,6 +536,7 @@ def single_podcast(podcast_id):
 #####################################################
 @app.route('/podcastep/<media_id>')
 def single_podcastep(media_id):
+    print("asdasdasdasssssssssssssssssss\n\n\n\n")
     """
     Show a single podcast epsiode by media_id in your media server
     Can do this without a login
@@ -511,7 +549,7 @@ def single_podcastep(media_id):
     # Fill in the Function below with to do all data handling for a podcast ep  #
     #############################################################################
 
-    page['title'] = 'List Podcast Epsiode' # Add the title
+    page['title'] = 'Podcast Episode' # Add the title
 
     # Set up some variables to manage the returns from the database fucntions
     podcastep = None
@@ -519,12 +557,15 @@ def single_podcastep(media_id):
     # Once retrieved, do some data integrity checks on the data
     if podcastep == None:
         podcastep = []
+
+    media_playback = get_playback_dict(media_id)    
     # NOTE :: YOU WILL NEED TO MODIFY THIS TO PASS THE APPROPRIATE VARIABLES
     return render_template('singleitems/podcastep.html',
                            session=session,
                            page=page,
                            user=user_details,
-                           podcastep=podcastep)
+                           podcastep=podcastep,
+                           media_playback=media_playback)
 
 
 #####################################################
@@ -545,7 +586,8 @@ def single_movie(movie_id):
     # Get a list of all movies by movie_id from the database
     movie = None
     movie = database.get_movie(movie_id)
-
+    
+    media_playback = get_playback_dict(movie_id)
 
     # Data integrity checks
     if movie == None:
@@ -556,7 +598,8 @@ def single_movie(movie_id):
                            session=session,
                            page=page,
                            user=user_details,
-                           movie=movie)
+                           movie=movie,
+                           media_playback=media_playback)
 
 
 #####################################################
@@ -885,7 +928,7 @@ def add_movie():
         print(newdict)
 
         #forward to the database to manage insert
-        movies = database.add_movie_to_db(newdict['movie_title'],newdict['release_year'],newdict['description'],newdict['storage_location'],newdict['film_genre'])
+        movies = database.add_movie_to_db(newdict['movie_title'],newdict['release_year'],newdict['description'],newdict['storage_location'],newdict['film_genre'],newdict['artwork'])
 
 
         max_movie_id = database.get_last_movie()[0]['movie_id']
@@ -958,13 +1001,15 @@ def add_song():
             print("We have a genre value: ",newdict['genre'])
         
         if ('artistid' not in request.form):
-            newdict['artistid'] = 'pop'
+            newdict['artistid'] = '0'
         else:
             newdict['artistid'] = request.form['artistid']
             print("We have a artist value: ",newdict['artistid'])
         
         print('newdict is:')
         print(newdict)
+        if (database.artistExists(newdict['artistid']) == False ):
+            return render_template('invalid.html')
         
         song_id = database.add_song_to_db(newdict['storage_location'],newdict['description'],newdict['song_title'],newdict['songlength'],newdict['genre'], newdict['artistid'])
 

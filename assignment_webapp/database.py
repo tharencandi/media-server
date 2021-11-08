@@ -1043,7 +1043,7 @@ def get_album_songs(album_id):
         JOIN mediaserver.Song_Artists SA USING (song_id)) 
         JOIN mediaserver.Artist A ON (A.artist_id = SA.performing_artist_id)
         WHERE album_id=%s
-        ORDER BY song_id;
+        ORDER BY song_id ASC;
         """
 
         r = dictfetchall(cur,sql,(album_id,))
@@ -1326,6 +1326,49 @@ def get_genre_movies_and_shows(genre_id):
     conn.close()                    # Close the connection to the db
     return None
 
+
+#####################################################
+#   Query (10)
+#   Get all podcastep for one song_genre
+#####################################################
+def get_genre_podcasteps(genre_id):
+    """
+    Get all podcasteps for a particular podcast_genre ID in your media server
+    """
+    conn = database_connect()
+    if(conn is None):
+        return None
+    cur = conn.cursor()
+    try:
+        #########
+        # TODO  #  
+        #########
+
+        #############################################################################
+        # Fill in the SQL below with a query to get all information about all       #
+        # songs which belong to a particular genre_id                               #
+        #############################################################################
+        sql = """ SELECT podcast_episode_title as title, media_id
+            FROM ((mediaserver.PodcastEpisode
+            JOIN mediaserver.MediaItemMetaData USING (media_id)) 
+            JOIN mediaserver.MetaData Md USING (md_id)) 
+            JOIN mediaserver.MetaDataType USING (md_type_id)
+        WHERE md_type_name = 'podcastep genre'  AND md_id =%s;
+        """
+
+        r = dictfetchall(cur,sql,(genre_id,))
+        print("return val is:")
+        print(r)
+        cur.close()                     # Close the cursor
+        conn.close()                    # Close the connection to the db
+        return r
+    except:
+        # If there were any errors, return a NULL row printing an error to the debug
+        print("Unexpected error getting Songs with Genre ID: "+genre_id, sys.exc_info()[0])
+        raise
+    cur.close()                     # Close the cursor
+    conn.close()                    # Close the connection to the db
+    return None
 
 
 #####################################################

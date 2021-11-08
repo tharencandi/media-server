@@ -1300,19 +1300,18 @@ def get_genre_movies_and_shows(genre_id):
 
        
         sql = """
-        SELECT movie_title as title, movie_id as media_id, 'movie' as film_type
+        (SELECT movie_title as title, movie_id as media_id, 'movie' as media_type
             FROM mediaserver.movie JOIN mediaserver.MediaItemMetaData ON (movie_id = media_id) 
-        WHERE md_id = %s 
-        UNION 
-        SELECT tvshow_title as title, tvshow_id as media_id, 'show' as film_type
-        FROM mediaserver.tvshow JOIN mediaserver.MediaItemMetaData ON (tvshow_id = media_id) 
-        WHERE md_id = %s  
-        
+        WHERE md_id = %s) 
+        UNION
+        (SELECT tvshow_title as title, tvshow_id as media_id, 'show' as media_type
+        FROM mediaserver.tvshow JOIN mediaserver.TVShowMetaData USING (tvshow_id) 
+        WHERE md_id = %s)  
         """
 
         
     #THIS WAS CHANGED TO two insyead of one 
-        r = dictfetchall(cur,sql,(genre_id, genre_id))
+        r = dictfetchall(cur,sql,(genre_id,genre_id))
         print("return val is:")
         print(r)
         cur.close()                     # Close the cursor

@@ -670,7 +670,6 @@ def single_tvshow(tvshow_id):
 
     tvshoweps = None
     tvshoweps = database.get_all_tvshoweps_for_tvshow(tvshow_id)
-
     # Data integrity checks
     if tvshow == None:
         tvshow = []
@@ -703,7 +702,7 @@ def single_tvshowep(tvshowep_id):
     # Get a list of all tvshow eps by media_id from the database
     tvshowep = None
     tvshowep = database.get_tvshowep(tvshowep_id)
-
+    media_playback = get_playback_dict(tvshowep_id)
 
     # Data integrity checks
     if tvshowep == None:
@@ -714,7 +713,8 @@ def single_tvshowep(tvshowep_id):
                            session=session,
                            page=page,
                            user=user_details,
-                           tvshowep=tvshowep)
+                           tvshowep=tvshowep,
+                           media_playback=media_playback)
 
 #####################################################
 #   Query (10)

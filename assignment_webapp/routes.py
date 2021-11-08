@@ -470,7 +470,10 @@ def single_song(song_id):
     #if songmetadata['description'] == None:
     if i == len(songmetadata):
         print("yes")
-        songmetadata.append(album_artwork[0])
+        if (len(album_artwork) > 0):
+            songmetadata.append(album_artwork[0])
+        else:
+            songmetadata.append(None)
     
     if j+1 == len(songmetadata):
         print("yes")

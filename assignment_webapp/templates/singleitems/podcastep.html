@@ -1,12 +1,14 @@
 {% include 'top.html' %}
 <div class="content">
     <div class="container details">
-        
+        {{podcastep}}
         <!-- TODO Query (7)
         Display All Relevant Podcast Episode Infromation including meta data
         -->
         {% if podcastep | length > 0 %}
-            <h2 class="title"> {{podcastep[0].podcast_episode_title}} ({{podcastep[0].podcast_episode_published_date}})</h2>
+            <h2 class="title"> {{podcastep[0].media_id}} {{podcastep[0].podcast_episode_title}} ({{podcastep[0].podcast_episode_published_date}})</h2>
+            <h3>{{podcastep[0].podcast_episode_uri}}</h3>
+            <h3>Length: {{podcastep[0].podcast_episode_length}}s</h3>
             <hr/>
             <audio controls class="audio">
                 <source src="{{media_playback['storage_location'].storage_location}}" type="audio/mp3" preload="auto">
@@ -28,6 +30,16 @@
                         {{instance.md_value}}
                     </div>
                 {% endif %}
+            {% endfor %}
+            <h3> Genres </h3>
+            {% for instance in podcastep %}
+                {% if instance.md_type_name == 'podcast genre' %}
+                    <a href="{{url_for('single_genre', genre_id=instance.md_id, genre_type=instance.md_type_name)}}">
+                    <td>{{instance.md_value}}</td>
+                    </a>
+                    <br/>
+                {% endif %}
+                    
             {% endfor %}
         <!-- TODO - Query (10)
         You will have to modify the above approach slightly to make each genre clickable

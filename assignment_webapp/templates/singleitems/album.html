@@ -16,7 +16,6 @@
             <br/>
             <h3> Descriptions </h3>
             {% for instance in album %}
-                {{instance}}
                 {% if instance.md_type_name == 'description' %}
                     <div>
                         {% if instance.md_value == '' %}

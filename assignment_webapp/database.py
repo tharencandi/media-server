@@ -211,82 +211,6 @@ def is_superuser(username):
 #   Query (1 b)
 #   Get user playlists
 #####################################################
-def get_playlist_media(collection_id):
-    conn = database_connect()
-    if(conn is None):
-        return None
-    cur = conn.cursor()
-    try:
-        sql = """
-       SELECT * FROM 
-            (
-                (SELECT media_id, 'song' as type, song_title as title
-                    FROM mediaserver.MediaCollectionContents U JOIN mediaserver.Song S ON (S.song_id = U.media_id)
-                    WHERE collection_id = %s
-                   )
-
-                UNION
-
-                (SELECT U.media_id,'movie' as type, movie_title as title
-                    FROM mediaserver.MediaCollectionContents U JOIN mediaserver.Movie M ON (M.movie_id = U.media_id)
-                    WHERE collection_id = %s
-                   )
-                
-                UNION
-                
-                (SELECT U.media_id,'tvshowep' as type, tvshow_episode_title as title
-                    FROM mediaserver.MediaCollectionContents U JOIN mediaserver.TVEpisode T ON (T.media_id = U.media_id)
-                    WHERE collection_id = %s
-                   )
-
-                UNION
-
-                (SELECT U.media_id,'podcastep' as type, podcast_episode_title as title
-                    FROM mediaserver.MediaCollectionContents U JOIN mediaserver.PodcastEpisode P ON (P.media_id = U.media_id)
-                    WHERE collection_id = %s
-                )
-            ) big     
-        """
-        r = dictfetchall(cur,sql,(collection_id,collection_id, collection_id, collection_id))
-        print("return val is:")
-        print(r)
-        cur.close()                     # Close the cursor
-        conn.close()                    # Close the connection to the db
-        return r
-    except:
-         # If there were any errors, return a NULL row printing an error to the debug
-        print("Unexpected error getting User Playlists:", sys.exc_info()[0])
-        cur.close()
-        conn.close()
-        raise
-        return None
-
-def get_playlist_name(collection_id):
-    conn = database_connect()
-    if(conn is None):
-        return None
-    cur = conn.cursor()
-    try:
-        sql = """
-        SELECT collection_name 
-            FROM mediaserver.MediaCollection
-            WHERE collection_id = %s;
-        """
-        r = dictfetchall(cur,sql,(collection_id,))
-        print("return val is:")
-        print(r)
-        cur.close()                     # Close the cursor
-        conn.close()                    # Close the connection to the db
-        return r
-    except:
-         # If there were any errors, return a NULL row printing an error to the debug
-        print("Unexpected error getting User Playlists:", sys.exc_info()[0])
-        cur.close()
-        conn.close()
-        raise
-        return None
-    
-
 def user_playlists(username):
     """
     Check if user has any playlists
@@ -306,10 +230,9 @@ def user_playlists(username):
         ###############################################################################
         # Fill in the SQL below and make sure you get all the playlists for this user #
         ###############################################################################
-        sql = """ SELECT collection_id, collection_name, COUNT(media_id) as count
-            FROM mediaserver.MediaCollection LEFT JOIN mediaserver.MediaCollectionContents USING (collection_id)
-            WHERE username = %s
-            GROUP BY collection_id, collection_name;
+        sql = """ SELECT collection_name 
+            FROM mediaserver.MediaCollection 
+            WHERE username = %s;
         
         """
 
@@ -393,42 +316,14 @@ def user_in_progress_items(username):
         # Fill in the SQL below with a way to find all the in progress items for the user #
         ###################################################################################
 
-        sql = """
-        SELECT * FROM 
-            (
+        sql = """SELECT * 
+            FROM mediaserver.UserMediaConsumption 
+            WHERE username = %s AND progress != 100.00;
 
-                (SELECT username, U.media_id, play_count, progress, lastviewed, storage_location, 'song' as type, song_title as title
-                    FROM (mediaserver.UserMediaConsumption U JOIN mediaserver.MediaItem USING (media_id)) JOIN mediaserver.Song S ON (S.song_id = U.media_id)
-                    WHERE username = %s AND progress != 100.00)
+        """
 
-                UNION
-
-                (SELECT username, U.media_id, play_count, progress, lastviewed, storage_location, 'movie' as type, movie_title as title
-                    FROM (mediaserver.UserMediaConsumption U JOIN mediaserver.MediaItem USING (media_id)) JOIN mediaserver.Movie M ON (M.movie_id = U.media_id)
-                    WHERE username = %s AND progress != 100.00)
-                
-                UNION
-                
-                (SELECT username, U.media_id, play_count, progress, lastviewed, storage_location, 'tvshowep' as type, tvshow_episode_title as title
-                    FROM (mediaserver.UserMediaConsumption U JOIN mediaserver.MediaItem USING (media_id)) JOIN mediaserver.TVEpisode T ON (T.media_id = U.media_id)
-                    WHERE username = %s AND progress != 100.00)
-
-                UNION
-
-                (SELECT username, U.media_id, play_count, progress, lastviewed, storage_location, 'podcastep' as type, podcast_episode_title as title
-                    FROM (mediaserver.UserMediaConsumption U JOIN mediaserver.MediaItem USING (media_id)) JOIN mediaserver.PodcastEpisode P ON (P.media_id = U.media_id)
-                    WHERE username = %s AND progress != 100.00)
-            ) big
-
-            ORDER BY lastviewed DESC
-            
-            
-        """  
-
-        
-        r = dictfetchall(cur,sql,(username,username,username,username))
-    
-        print("OOOOOOOOOGAAA is:")
+        r = dictfetchall(cur,sql,(username,))
+        print("return val is:")
         print(r)
         cur.close()                     # Close the cursor
         conn.close()                    # Close the connection to the db
@@ -734,30 +629,7 @@ def get_media_playback_position(username, media_id):
     conn.close()                    # Close the connection to the db
     return None
 
-def get_media_playback_playcount(username, media_id):
-    conn = database_connect()
-    if(conn is None):
-        return None
-    cur = conn.cursor()
-    try:
-        sql = """
-            SELECT play_count FROM mediaserver.UserMediaConsumption  WHERE username = %s AND media_id = %s;
-        """
-        r = dictfetchall(cur,sql,(username, media_id))
-        print("return val is:")
-        print(r)
-        cur.close()                     # Close the cursor
-        conn.close()                    # Close the connection to the db
-        return r
-    except:
-        # If there were any errors, return a NULL row printing an error to the debug
-        print("Unexpected error updating the progress:", sys.exc_info()[0])
-        raise
-    cur.close()                     # Close the cursor
-    conn.close()                    # Close the connection to the db
-    return None
-
-def update_progress(username, media_id, progress, lastviewed, playcount):
+def update_progress(username, media_id, progress, lastviewed):
     conn = database_connect()
     if(conn is None):
         return None
@@ -782,9 +654,9 @@ def update_progress(username, media_id, progress, lastviewed, playcount):
           
         else:
             sql = """INSERT INTO mediaserver.UserMediaConsumption(username, media_id, play_count, progress, lastviewed)
-             VALUES(%s, %s, %s, %s, %s);
+             VALUES(%s, %s, 1, %s, %s);
             """
-            cur.execute(sql,(username, media_id, playcount, progress, lastviewed))
+            cur.execute(sql,(username, media_id, progress, lastviewed))
 
         conn.commit()
         print("return val is:")
@@ -1077,13 +949,25 @@ def get_podcastep(podcastep_id):
         # podcast episodes and it's associated metadata                             #
         #############################################################################
         sql = """
-        SELECT * 
+        (SELECT pe.podcast_id, pe.media_id, podcast_episode_title, podcast_episode_uri, podcast_episode_published_date, podcast_episode_length, md_type_id, md_id, md_value, md_type_name 
         FROM mediaserver.PodcastEpisode pe LEFT OUTER JOIN 
-            (mediaserver.mediaitemmetadata NATURAL JOIN mediaserver.metadata NATURAL JOIN mediaserver.MetaDataType) pemd
+            (mediaserver.mediaitemmetadata 
+            NATURAL JOIN mediaserver.metadata 
+            NATURAL JOIN mediaserver.MetaDataType) pemd
             ON (pe.media_id=pemd.media_id)
-        WHERE pe.media_id = %s"""
+        WHERE pe.media_id = %s)
+        UNION
+        (SELECT pe.podcast_id, pe.media_id, pe.podcast_episode_title, pe.podcast_episode_uri, pe.podcast_episode_published_date, pe.podcast_episode_length, md_type_id, md_id, md_value, md_type_name 
+        FROM mediaserver.PodcastEpisode pe LEFT OUTER JOIN 
+            (mediaserver.podcastmetadata 
+            NATURAL JOIN mediaserver.metadata 
+            NATURAL JOIN mediaserver.MetaDataType) pmd
+            ON (pe.podcast_id=pmd.podcast_id)
+        WHERE pe.media_id = %s AND pmd.md_type_name = 'podcast genre')
+        """
 
-        r = dictfetchall(cur,sql,(podcastep_id,))
+
+        r = dictfetchall(cur,sql,(podcastep_id,podcastep_id))
         print("return val is:")
         print(r)
         cur.close()                     # Close the cursor
@@ -1364,11 +1248,14 @@ def get_genre_podcasts(genre_id):
         # Fill in the SQL below with a query to get all information about all       #
         # podcasts which belong to a particular genre_id                            #
         #############################################################################
-        sql = """SELECT podcast_title as title, podcast_id as media_id
-            FROM ((mediaserver.podcast JOIN mediaserver.MediaItemMetaData ON (podcast_id = media_id)) JOIN mediaserver.MetaData Md USING (md_id)) JOIN mediaserver.MetaDataType USING (md_type_id)
-        WHERE md_type_name = 'podcast genre'  AND md_id = %s;
+        sql = """(SELECT podcast_title as title, podcast.podcast_id as media_id, 'podcast' as media_type
+            FROM ((mediaserver.podcast 
+            JOIN mediaserver.PodcastMetaData ON (podcast.podcast_id = PodcastMetaData.podcast_id)) 
+            JOIN mediaserver.MetaData Md USING (md_id)) 
+            JOIN mediaserver.MetaDataType USING (md_type_id)
+        WHERE md_type_name = 'podcast genre'  AND md_id = %s
+        ORDER BY md_id)
         """
-
         r = dictfetchall(cur,sql,(genre_id,))
         print("return val is:")
         print(r)
@@ -1454,48 +1341,7 @@ def get_genre_movies_and_shows(genre_id):
     return None
 
 
-#####################################################
-#   Query (10)
-#   Get all podcastep for one song_genre
-#####################################################
-def get_genre_podcasteps(genre_id):
-    """
-    Get all podcasteps for a particular podcast_genre ID in your media server
-    """
-    conn = database_connect()
-    if(conn is None):
-        return None
-    cur = conn.cursor()
-    try:
-        #########
-        # TODO  #  
-        #########
 
-        #############################################################################
-        # Fill in the SQL below with a query to get all information about all       #
-        # songs which belong to a particular genre_id                               #
-        #############################################################################
-        sql = """ SELECT podcast_episode_title as title, media_id
-            FROM ((mediaserver.PodcastEpisode
-            JOIN mediaserver.MediaItemMetaData USING (media_id)) 
-            JOIN mediaserver.MetaData Md USING (md_id)) 
-            JOIN mediaserver.MetaDataType USING (md_type_id)
-        WHERE md_type_name = 'podcastep genre'  AND md_id =%s;
-        """
-
-        r = dictfetchall(cur,sql,(genre_id,))
-        print("return val is:")
-        print(r)
-        cur.close()                     # Close the cursor
-        conn.close()                    # Close the connection to the db
-        return r
-    except:
-        # If there were any errors, return a NULL row printing an error to the debug
-        print("Unexpected error getting Songs with Genre ID: "+genre_id, sys.exc_info()[0])
-        raise
-    cur.close()                     # Close the cursor
-    conn.close()                    # Close the connection to the db
-    return None
 
 
 #####################################################

@@ -6,8 +6,8 @@
         Display All Relevant Podcast Episode Infromation including meta data
         -->
         {% if podcastep | length > 0 %}
-        <h2 class="title"> {{podcastep[0].podcast_episode_title}} ({{podcastep[0].podcast_episode_published_date}})</h2>
-        <h2>ID: {{podcastep[0].media_id}}</h2>
+            <h2 class="title"> {{podcastep[0].podcast_episode_title}} ({{podcastep[0].podcast_episode_published_date}})</h2>
+            <h2>ID: {{podcastep[0].media_id}}</h2>
             <h3>{{podcastep[0].podcast_episode_uri}}</h3>
             <h3>Length: {{podcastep[0].podcast_episode_length}}s</h3>
             <hr/>

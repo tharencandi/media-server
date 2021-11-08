@@ -1041,7 +1041,8 @@ def get_album_songs(album_id):
         FROM ((mediaserver.Song JOIN mediaserver.Album_Songs USING (song_id)) 
         JOIN mediaserver.Song_Artists SA USING (song_id)) 
         JOIN mediaserver.Artist A ON (A.artist_id = SA.performing_artist_id)
-        WHERE album_id=%s;
+        WHERE album_id=%s
+        ORDER BY song_id;
         """
 
         r = dictfetchall(cur,sql,(album_id,))
@@ -1393,7 +1394,7 @@ def get_all_tvshoweps_for_tvshow(tvshow_id):
         # tv episodes in a tv show                                                  #
         #############################################################################
         sql = """select s.media_id, s.tvshow_episode_title, s.season, s.episode, s.air_date
-        FROM (mediaserver.TVShow join mediaserver.TVEpisode using (tvshow_id)) as s
+        FROM (mediaserverf.TVShow join mediaserver.TVEpisode using (tvshow_id)) as s
         WHERE s.tvshow_id=%s;
         """
 

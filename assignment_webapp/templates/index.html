@@ -16,7 +16,7 @@
                 </thead>
                 <tbody>
                     {% for instance in playlists %}
-                    <tr>
+                    <tr class="clickable-tr" data-href="{{url_for('single_playlist', collection_id=instance.collection_id)}}">
                         <td style="text-align: center">{{ instance.collection_id }}</td>
                         <td>{{instance.collection_name}}</td>
                         <td>{{ instance.count }}</td>
@@ -60,20 +60,36 @@
                     <thead>
                         <tr>
                             <td>Media ID</td>
+                            <td>Name</td>
                             <td>Playcount</td>
                             <td>Progress</td>
                             <td>Lastviewed</td>
                             <td>Storage Location</td>
+                            <td>Type</td>
                         </tr>
                     </thead>
                     <tbody>
                         {% for instance in usercurrent %}
-                        <tr>
+                        
+                            {% if instance.type == 'movie' %}
+                            <tr class="clickable-tr" data-href="{{ url_for('single_movie', movie_id=instance.media_id)}}">
+                            {% elif instance.type == 'tvshowep' %}
+                            <tr class="clickable-tr" data-href="{{ url_for('single_tvshowep', tvshowep_id=instance.media_id)}}">
+                            {% elif instance.type == 'song' %} 
+                            <tr class="clickable-tr" data-href="{{ url_for('single_song', song_id=instance.media_id)}}">
+                            {% elif instance.type == 'podcastep' %}  
+                            <tr class="clickable-tr" data-href="{{ url_for('single_podcastep', media_id=instance.media_id)}}">
+                            {% else %}
+                            <tr>
+                            {% endif %}
+
                             <td style="text-align: center">{{ instance.media_id }}</td>
-                            <td>{{ instance.playcount }}</td>
+                            <td> {{instance.title}}</td>
+                            <td>{{ instance.play_count }}</td>
                             <td>{{ instance.progress }}</td>
                             <td>{{ instance.lastviewed }}</td>
                             <td>{{ instance.storage_location }}</td>
+                            <td> {{instance.type}}</td>
                         </tr>
                         {% endfor %}
                     </tbody>

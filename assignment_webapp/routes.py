@@ -101,8 +101,14 @@ def update_progress(media_id):
     #we need to extract song duraction from here to calc progress
     #meta = database.get_song_metadata(media_id)
     now = datetime.date.today()
-    if username:
-        check = database.update_progress(username, media_id, current_playback_time, now )
+    playcount = database.get_media_playback_playcount(username,media_id)
+    if playcount != None:
+        playcount = playcount[0]
+    else:
+        playcount = 1
+
+    print("PLAYCOUNT", playcount)
+    check = database.update_progress(username, media_id, current_playback_time, now,playcount)
     print("setting progress to {} on {}".format(current_playback_time, media_id))
     return ""
     #call  update progress database method
@@ -532,6 +538,16 @@ def single_podcast(podcast_id):
                            podcast=podcast,
                            podcast_episodes=podcast_episodes,
                            user=user_details)
+
+@app.route('/playlist/<collection_id>')
+def single_playlist(collection_id):
+
+    name = database.get_playlist_name(collection_id)[0]
+    media = database.get_playlist_media(collection_id)
+
+    return render_template('singleitems/playlist.html',name=name,media=media)
+
+
 
 #####################################################
 #   Query (7)

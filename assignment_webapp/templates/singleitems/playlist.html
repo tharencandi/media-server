@@ -1,0 +1,43 @@
+{% include 'top.html' %}
+<div class="content">
+    <div class="container details">
+
+        <h2 class="title"> Playlist: {{name.collection_name}}</h2>
+
+
+        <div>
+    
+            <table class="styled"  id="funtable">
+                <thead>
+                    <tr>
+                        <td>media_id</td>
+                        <td></a>name</td>
+                        <td>type</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for instance in media %}
+                        {% if instance.type == 'movie' %}
+                        <tr class="clickable-tr" data-href="{{ url_for('single_movie', movie_id=instance.media_id)}}">
+                        {% elif instance.type == 'tvshowep' %}
+                        <tr class="clickable-tr" data-href="{{ url_for('single_tvshowep', tvshowep_id=instance.media_id)}}">
+                        {% elif instance.type == 'song' %} 
+                        <tr class="clickable-tr" data-href="{{ url_for('single_song', song_id=instance.media_id)}}">
+                        {% elif instance.type == 'podcastep' %}  
+                        <tr class="clickable-tr" data-href="{{ url_for('single_podcastep', media_id=instance.media_id)}}">
+                        {% else %}
+                        <tr>
+                        {% endif %}
+                            <td style="text-align: center">{{ instance.media_id }}</td>
+                            <td>{{instance.title}}</td>
+                            <td>{{instance.type}}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+    
+            </table>
+    
+        </div>
+    </div>
+</div>
+{% include 'bottom.html'%}

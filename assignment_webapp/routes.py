@@ -539,6 +539,16 @@ def single_podcast(podcast_id):
                            podcast_episodes=podcast_episodes,
                            user=user_details)
 
+@app.route('/playlist/<collection_id>')
+def single_playlist(collection_id):
+
+    name = database.get_playlist_name(collection_id)[0]
+    media = database.get_playlist_media(collection_id)
+
+    return render_template('singleitems/playlist.html',name=name,media=media)
+
+
+
 #####################################################
 #   Query (7)
 #   Individual Podcast Episode

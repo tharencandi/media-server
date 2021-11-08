@@ -16,7 +16,7 @@
                 </thead>
                 <tbody>
                     {% for instance in playlists %}
-                    <tr>
+                    <tr class="clickable-tr" data-href="{{url_for('single_playlist', collection_id=instance.collection_id)}}">
                         <td style="text-align: center">{{ instance.collection_id }}</td>
                         <td>{{instance.collection_name}}</td>
                         <td>{{ instance.count }}</td>

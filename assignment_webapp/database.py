@@ -211,6 +211,82 @@ def is_superuser(username):
 #   Query (1 b)
 #   Get user playlists
 #####################################################
+def get_playlist_media(collection_id):
+    conn = database_connect()
+    if(conn is None):
+        return None
+    cur = conn.cursor()
+    try:
+        sql = """
+       SELECT * FROM 
+            (
+                (SELECT media_id, 'song' as type, song_title as title
+                    FROM mediaserver.MediaCollectionContents U JOIN mediaserver.Song S ON (S.song_id = U.media_id)
+                    WHERE collection_id = %s
+                   )
+
+                UNION
+
+                (SELECT U.media_id,'movie' as type, movie_title as title
+                    FROM mediaserver.MediaCollectionContents U JOIN mediaserver.Movie M ON (M.movie_id = U.media_id)
+                    WHERE collection_id = %s
+                   )
+                
+                UNION
+                
+                (SELECT U.media_id,'tvshowep' as type, tvshow_episode_title as title
+                    FROM mediaserver.MediaCollectionContents U JOIN mediaserver.TVEpisode T ON (T.media_id = U.media_id)
+                    WHERE collection_id = %s
+                   )
+
+                UNION
+
+                (SELECT U.media_id,'podcastep' as type, podcast_episode_title as title
+                    FROM mediaserver.MediaCollectionContents U JOIN mediaserver.PodcastEpisode P ON (P.media_id = U.media_id)
+                    WHERE collection_id = %s
+                )
+            ) big     
+        """
+        r = dictfetchall(cur,sql,(collection_id,collection_id, collection_id, collection_id))
+        print("return val is:")
+        print(r)
+        cur.close()                     # Close the cursor
+        conn.close()                    # Close the connection to the db
+        return r
+    except:
+         # If there were any errors, return a NULL row printing an error to the debug
+        print("Unexpected error getting User Playlists:", sys.exc_info()[0])
+        cur.close()
+        conn.close()
+        raise
+        return None
+
+def get_playlist_name(collection_id):
+    conn = database_connect()
+    if(conn is None):
+        return None
+    cur = conn.cursor()
+    try:
+        sql = """
+        SELECT collection_name 
+            FROM mediaserver.MediaCollection
+            WHERE collection_id = %s;
+        """
+        r = dictfetchall(cur,sql,(collection_id,))
+        print("return val is:")
+        print(r)
+        cur.close()                     # Close the cursor
+        conn.close()                    # Close the connection to the db
+        return r
+    except:
+         # If there were any errors, return a NULL row printing an error to the debug
+        print("Unexpected error getting User Playlists:", sys.exc_info()[0])
+        cur.close()
+        conn.close()
+        raise
+        return None
+    
+
 def user_playlists(username):
     """
     Check if user has any playlists
@@ -230,9 +306,10 @@ def user_playlists(username):
         ###############################################################################
         # Fill in the SQL below and make sure you get all the playlists for this user #
         ###############################################################################
-        sql = """ SELECT collection_name 
-            FROM mediaserver.MediaCollection 
-            WHERE username = %s;
+        sql = """ SELECT collection_id, collection_name, COUNT(media_id) as count
+            FROM mediaserver.MediaCollection LEFT JOIN mediaserver.MediaCollectionContents USING (collection_id)
+            WHERE username = %s
+            GROUP BY collection_id, collection_name;
         
         """
 

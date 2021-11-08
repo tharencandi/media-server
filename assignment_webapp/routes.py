@@ -92,7 +92,7 @@ def update_progress(media_id):
     #stuff = request.get_json()
     #print(stuff['progress'])
     username = None
-    if 'username' in user_details:
+    if 'username' in user_details and session['logged_in'] == True:
         username = user_details['username']
     else:
         return
@@ -403,7 +403,7 @@ def get_playback_dict(media_id):
     media_position = []
     storage_location = database.get_mediaLink(media_id)
     
-    if 'username' in user_details:
+    if 'username' in user_details and session['logged_in'] == True:
         media_position = database.get_media_playback_position(user_details['username'],media_id)
     
     if len(storage_location) > 0:

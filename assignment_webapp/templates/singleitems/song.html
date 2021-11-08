@@ -10,7 +10,7 @@
             <h3> Artworks </h3>
             {% for instance in songmetadata %}
                 {% if instance.md_type_name == 'artwork' %}
-                    <img src="{{instance.md_value}}" alt="image">
+                    <img src="{{instance.md_value}}" alt="image" style="width:500px;height:500px;">
                     <br/>© Spotify Public Domain 2019.
                 {% endif %}
             {% endfor %}

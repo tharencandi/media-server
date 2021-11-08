@@ -14,6 +14,7 @@
                     <tr>
                         <td>ID </td>
                         <td>Title</td>
+                        <td>Type</td>
                     </tr>
                 </thead>
             {% endif %}
@@ -23,16 +24,18 @@
                     {% for instance in media %}
                         
                     
-                        {% if instance.film_type == 'movie' %} 
+                        {% if instance.media_type == 'movie' %} 
                             <tr class="clickable-tr" data-href="{{ url_for('single_movie', movie_id=instance.media_id)}}">
                                 <td style="text-align: center">{{ instance.media_id }}</td>
                                 <td>{{instance.title}}</td>
+                                <td>Movie</td>
                             </tr>
                         {% endif %}
-                        {% if instance.film_type == 'show' %} 
+                        {% if instance.media_type == 'show' %} 
                             <tr class="clickable-tr" data-href="{{ url_for('single_tvshow', tvshow_id=instance.media_id)}}">
                                 <td style="text-align: center">{{ instance.media_id }}</td>
                                 <td>{{instance.title}}</td>
+                                <td>TV Show</td>
                             </tr>
                         {% endif %}
                     {% endfor %}
@@ -44,6 +47,7 @@
                         <tr class="clickable-tr" data-href="{{ url_for('single_song', song_id=instance.media_id)}}">
                             <td style="text-align: center">{{ instance.media_id }}</td>
                             <td>{{instance.title}}</td>
+                            <td>Song</td>
                         </tr>
                     {% endfor %}
                 {% endif %}
@@ -53,6 +57,7 @@
                         <tr class="clickable-tr" data-href="{{ url_for('single_podcast', podcast_id=instance.media_id)}}">
                             <td style="text-align: center">{{ instance.media_id }}</td>
                             <td>{{instance.title}}</td>
+                            <td>Podcast</td>
                         </tr>
                     {% endfor %}
                 {% endif %}

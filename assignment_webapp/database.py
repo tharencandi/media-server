@@ -316,14 +316,42 @@ def user_in_progress_items(username):
         # Fill in the SQL below with a way to find all the in progress items for the user #
         ###################################################################################
 
-        sql = """SELECT * 
-            FROM mediaserver.UserMediaConsumption 
-            WHERE username = %s AND progress != 100.00;
+        sql = """
+        SELECT * FROM 
+            (
 
-        """
+                (SELECT username, U.media_id, play_count, progress, lastviewed, storage_location, 'song' as type, song_title as title
+                    FROM (mediaserver.UserMediaConsumption U JOIN mediaserver.MediaItem USING (media_id)) JOIN mediaserver.Song S ON (S.song_id = U.media_id)
+                    WHERE username = %s AND progress != 100.00)
 
-        r = dictfetchall(cur,sql,(username,))
-        print("return val is:")
+                UNION
+
+                (SELECT username, U.media_id, play_count, progress, lastviewed, storage_location, 'movie' as type, movie_title as title
+                    FROM (mediaserver.UserMediaConsumption U JOIN mediaserver.MediaItem USING (media_id)) JOIN mediaserver.Movie M ON (M.movie_id = U.media_id)
+                    WHERE username = %s AND progress != 100.00)
+                
+                UNION
+                
+                (SELECT username, U.media_id, play_count, progress, lastviewed, storage_location, 'tvshowep' as type, tvshow_episode_title as title
+                    FROM (mediaserver.UserMediaConsumption U JOIN mediaserver.MediaItem USING (media_id)) JOIN mediaserver.TVEpisode T ON (T.media_id = U.media_id)
+                    WHERE username = %s AND progress != 100.00)
+
+                UNION
+
+                (SELECT username, U.media_id, play_count, progress, lastviewed, storage_location, 'podcastep' as type, podcast_episode_title as title
+                    FROM (mediaserver.UserMediaConsumption U JOIN mediaserver.MediaItem USING (media_id)) JOIN mediaserver.PodcastEpisode P ON (P.media_id = U.media_id)
+                    WHERE username = %s AND progress != 100.00)
+            ) big
+
+            ORDER BY lastviewed DESC
+            
+            
+        """  
+
+        
+        r = dictfetchall(cur,sql,(username,username,username,username))
+    
+        print("OOOOOOOOOGAAA is:")
         print(r)
         cur.close()                     # Close the cursor
         conn.close()                    # Close the connection to the db
@@ -629,7 +657,30 @@ def get_media_playback_position(username, media_id):
     conn.close()                    # Close the connection to the db
     return None
 
-def update_progress(username, media_id, progress, lastviewed):
+def get_media_playback_playcount(username, media_id):
+    conn = database_connect()
+    if(conn is None):
+        return None
+    cur = conn.cursor()
+    try:
+        sql = """
+            SELECT play_count FROM mediaserver.UserMediaConsumption  WHERE username = %s AND media_id = %s;
+        """
+        r = dictfetchall(cur,sql,(username, media_id))
+        print("return val is:")
+        print(r)
+        cur.close()                     # Close the cursor
+        conn.close()                    # Close the connection to the db
+        return r
+    except:
+        # If there were any errors, return a NULL row printing an error to the debug
+        print("Unexpected error updating the progress:", sys.exc_info()[0])
+        raise
+    cur.close()                     # Close the cursor
+    conn.close()                    # Close the connection to the db
+    return None
+
+def update_progress(username, media_id, progress, lastviewed, playcount):
     conn = database_connect()
     if(conn is None):
         return None
@@ -654,9 +705,9 @@ def update_progress(username, media_id, progress, lastviewed):
           
         else:
             sql = """INSERT INTO mediaserver.UserMediaConsumption(username, media_id, play_count, progress, lastviewed)
-             VALUES(%s, %s, 1, %s, %s);
+             VALUES(%s, %s, %s, %s, %s);
             """
-            cur.execute(sql,(username, media_id, progress, lastviewed))
+            cur.execute(sql,(username, media_id, playcount, progress, lastviewed))
 
         conn.commit()
         print("return val is:")

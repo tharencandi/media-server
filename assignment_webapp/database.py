@@ -274,7 +274,7 @@ def user_podcast_subscriptions(username):
         # Fill in the SQL below and get all the podcasts that the user is subscribed to #
         #################################################################################
 
-        sql = """ SELECT podcast_title, podcast_uri, podcast_last_updated 
+        sql = """ SELECT podcast_id, podcast_title, podcast_uri, podcast_last_updated 
             FROM mediaserver.Podcast PE NATURAL JOIN mediaserver.Subscribed_Podcasts SA
             WHERE SA.username = %s;
         """

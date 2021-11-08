@@ -32,6 +32,7 @@
                 {% if instance.md_type_name == 'podcast genre' %}
                         <a href="{{url_for('single_genre', genre_id=instance.md_id, genre_type=instance.md_type_name)}}">
                         <td>{{instance.md_value}}</td>
+                        </a>
                         <br/>
                 {% endif %}
             {% endfor %}

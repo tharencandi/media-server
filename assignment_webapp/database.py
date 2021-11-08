@@ -1077,13 +1077,25 @@ def get_podcastep(podcastep_id):
         # podcast episodes and it's associated metadata                             #
         #############################################################################
         sql = """
-        SELECT * 
+        (SELECT pe.podcast_id, pe.media_id, podcast_episode_title, podcast_episode_uri, podcast_episode_published_date, podcast_episode_length, md_type_id, md_id, md_value, md_type_name 
         FROM mediaserver.PodcastEpisode pe LEFT OUTER JOIN 
-            (mediaserver.mediaitemmetadata NATURAL JOIN mediaserver.metadata NATURAL JOIN mediaserver.MetaDataType) pemd
+            (mediaserver.mediaitemmetadata 
+            NATURAL JOIN mediaserver.metadata 
+            NATURAL JOIN mediaserver.MetaDataType) pemd
             ON (pe.media_id=pemd.media_id)
-        WHERE pe.media_id = %s"""
+        WHERE pe.media_id = %s)
+        UNION
+        (SELECT pe.podcast_id, pe.media_id, pe.podcast_episode_title, pe.podcast_episode_uri, pe.podcast_episode_published_date, pe.podcast_episode_length, md_type_id, md_id, md_value, md_type_name 
+        FROM mediaserver.PodcastEpisode pe LEFT OUTER JOIN 
+            (mediaserver.podcastmetadata 
+            NATURAL JOIN mediaserver.metadata 
+            NATURAL JOIN mediaserver.MetaDataType) pmd
+            ON (pe.podcast_id=pmd.podcast_id)
+        WHERE pe.media_id = %s AND pmd.md_type_name = 'podcast genre')
+        """
 
-        r = dictfetchall(cur,sql,(podcastep_id,))
+
+        r = dictfetchall(cur,sql,(podcastep_id,podcastep_id))
         print("return val is:")
         print(r)
         cur.close()                     # Close the cursor
@@ -1096,7 +1108,6 @@ def get_podcastep(podcastep_id):
     cur.close()                     # Close the cursor
     conn.close()                    # Close the connection to the db
     return None
-
 
 #####################################################
 #   Query (5 a,b)
@@ -1364,11 +1375,14 @@ def get_genre_podcasts(genre_id):
         # Fill in the SQL below with a query to get all information about all       #
         # podcasts which belong to a particular genre_id                            #
         #############################################################################
-        sql = """SELECT podcast_title as title, podcast_id as media_id
-            FROM ((mediaserver.podcast JOIN mediaserver.MediaItemMetaData ON (podcast_id = media_id)) JOIN mediaserver.MetaData Md USING (md_id)) JOIN mediaserver.MetaDataType USING (md_type_id)
-        WHERE md_type_name = 'podcast genre'  AND md_id = %s;
+        sql = """(SELECT podcast_title as title, podcast.podcast_id as media_id, 'podcast' as media_type
+            FROM ((mediaserver.podcast 
+            JOIN mediaserver.PodcastMetaData ON (podcast.podcast_id = PodcastMetaData.podcast_id)) 
+            JOIN mediaserver.MetaData Md USING (md_id)) 
+            JOIN mediaserver.MetaDataType USING (md_type_id)
+        WHERE md_type_name = 'podcast genre'  AND md_id = %s
+        ORDER BY md_id)
         """
-
         r = dictfetchall(cur,sql,(genre_id,))
         print("return val is:")
         print(r)
@@ -1383,6 +1397,7 @@ def get_genre_podcasts(genre_id):
     conn.close()                    # Close the connection to the db
     return None
 
+    
 def get_genre_name(genre_id):
     conn = database_connect()
     if(conn is None):
